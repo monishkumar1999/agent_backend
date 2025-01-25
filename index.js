@@ -7,8 +7,8 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const adminRoutes = require('./route/adminRoutes');  // Import the admin routes
 const cookieParser = require('cookie-parser');
-const masterRouter = require('./route/masters'); 
-const roleMaster = require('./route/role'); 
+const masterRouter = require('./route/masters');
+const roleMaster = require('./route/role');
 const describeRouter = require('./route/describe_agency');
 const serviceProvide = require('./route/service_provide');
 const durationRoute = require('./route/duration_buyerAgreement');
@@ -21,9 +21,19 @@ const propertyRoute = require('./route/property');
 const purchasePurpose = require('./route/purchasePurpose');
 const prefferedCommunicateRoute = require('./route/preffredCommunicate');
 
+const initializeSocket = require('./utils/socket');
 
+
+const http = require('http');
 
 const app = express();
+const server = http.createServer(app);
+
+initializeSocket(server);
+
+
+
+
 app.use(cookieParser());
 // const corsOptions = {
 //     origin: '*', // Allow requests from any origin
@@ -164,21 +174,21 @@ const BuyerAgent = mongoose.model('BuyerAgent', buyerAgentSchema);
 // };
 
 
-app.use('/admin', adminRoutes);  
-app.use('/master',masterRouter)
+app.use('/admin', adminRoutes);
+app.use('/master', masterRouter)
 
-app.use('/roleMaster',roleMaster)
-app.use('/describeMaster',describeRouter) 
-app.use('/serviceProvide',serviceProvide) 
-app.use('/salemethod',saleMethod) 
-app.use('/durationRoute',durationRoute) 
-app.use('/specalize',specializeRoute) 
-app.use('/typically',typicallyRoute) 
-app.use('/videoCalltech',videoCalltechRoute)
-app.use('/digitalTech',digitalRoute)
-app.use('/property',propertyRoute)
-app.use('/purchase',purchasePurpose)
-app.use('/communicate',prefferedCommunicateRoute)
+app.use('/roleMaster', roleMaster)
+app.use('/describeMaster', describeRouter)
+app.use('/serviceProvide', serviceProvide)
+app.use('/salemethod', saleMethod)
+app.use('/durationRoute', durationRoute)
+app.use('/specalize', specializeRoute)
+app.use('/typically', typicallyRoute)
+app.use('/videoCalltech', videoCalltechRoute)
+app.use('/digitalTech', digitalRoute)
+app.use('/property', propertyRoute)
+app.use('/purchase', purchasePurpose)
+app.use('/communicate', prefferedCommunicateRoute)
 
 const authenticateToken = (req, res, next) => {
     const token = req.body.token;
@@ -856,8 +866,6 @@ app.get('/api/allBuyerAgents', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8000;
-
-
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
