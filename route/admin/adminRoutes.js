@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const Admin = require('../model/admin');
+const Admin = require('../../model/admin');
 const cors = require('cors');
 
 const router = express.Router();
@@ -24,6 +24,7 @@ const JWT_SECRET = 'your_secure_jwt_secret_key'; // Make sure to change this key
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
+  console.log(2)
   if (!username || !password) {
     return res.status(400).json({ status: 'false', message: 'Username and password are required' });
   }

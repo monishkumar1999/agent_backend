@@ -1,9 +1,10 @@
 const express = require('express');
-const checkJwt = require('../middleware/checkToken');  // Token validation middleware
-const Role = require('../model/role');
+const checkJwt = require('../../middleware/checkToken');  // Token validation middleware
+const Role = require('../../model/role');
 const cors = require('cors');
+const VideoCallTechModel = require('../../model/videocallTech');
 
-const roleMaster = express.Router();
+const videoCalltechRoute = express.Router();
 
 const corsOptions = {
     origin: 'http://localhost:3000',
@@ -12,34 +13,29 @@ const corsOptions = {
     credentials: true,
 };
 
-roleMaster.use(cors(corsOptions));
-roleMaster.options('*', cors(corsOptions));
+videoCalltechRoute.use(cors(corsOptions));
+videoCalltechRoute.options('*', cors(corsOptions));
 
 // API to add a new Role
-roleMaster.use("/add", checkJwt, async (req, res) => {
+videoCalltechRoute.use("/add", checkJwt, async (req, res) => {
     const { name } = req.body;
+ 
     try {
         if (!name) {
             throw new Error("Role name is required");
         }
 
-
-       
-        if (!name || typeof name !== "string" || /\d/.test(name)) {
-            throw new Error("Role name is required and must be a string");
-        }
-
-
         // Check if role with the same name exists
-        const existingRole = await Role.findOne({ name, action: '0' });
+        const existingRole = await VideoCallTechModel.findOne({ name, action: '0' });
 
+        
         if (existingRole) {
             throw new Error("Role with this name already exists");
         }
 
-        const roleInstance = new Role({ name });
+        const roleInstance = new VideoCallTechModel({ name });
         const savedRole = await roleInstance.save();
-
+       
         if (savedRole) {
             res.status(200).json({
                 status: "true",
@@ -55,10 +51,10 @@ roleMaster.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-roleMaster.get("/view", checkJwt, async (req, res) => {
+videoCalltechRoute.get("/view", checkJwt, async (req, res) => {
 
     try {
-        const roles = await Role.find({ action: "0" });  // Fetch roles with action '0' (active)
+        const roles = await VideoCallTechModel.find({ action: "0" });  // Fetch roles with action '0' (active)
         res.status(200).json({ status: "true", data: roles });
     } catch (err) {
         return res.status(500).json({ status: "false", message: err.message });
@@ -66,12 +62,12 @@ roleMaster.get("/view", checkJwt, async (req, res) => {
 });
 
 // Edit an existing Role
-roleMaster.put("/edit", checkJwt, async (req, res) => {
+videoCalltechRoute.put("/edit", checkJwt, async (req, res) => {
     const { name, newName } = req.body;
 
     try {
         // Check if the new role name already exists
-        const existingRole = await Role.findOne({ name: newName, action: "0" });
+        const existingRole = await VideoCallTechModel.findOne({ name: newName, action: "0" });
 
         if (existingRole) {
             return res.status(400).json({
@@ -81,7 +77,7 @@ roleMaster.put("/edit", checkJwt, async (req, res) => {
         }
 
         // Proceed with updating the role name
-        const roleInstance = await Role.findOne({ name });
+        const roleInstance = await VideoCallTechModel.findOne({ name });
 
         if (!roleInstance) {
             return res.status(404).json({
@@ -106,7 +102,7 @@ roleMaster.put("/edit", checkJwt, async (req, res) => {
 });
 
 // Delete a Role (by setting action to '1' instead of deletion)
-roleMaster.delete("/delete", checkJwt, async (req, res) => {
+videoCalltechRoute.delete("/delete", checkJwt, async (req, res) => {
     const { _id } = req.body;
 
     try {
@@ -114,7 +110,7 @@ roleMaster.delete("/delete", checkJwt, async (req, res) => {
             throw new Error("Role ID is required");
         }
 
-        const roleInstance = await Role.findOne({ _id });
+        const roleInstance = await VideoCallTechModel.findOne({ _id });
 
         if (!roleInstance) {
             return res.status(404).json({
@@ -138,4 +134,4 @@ roleMaster.delete("/delete", checkJwt, async (req, res) => {
     }
 });
 
-module.exports = roleMaster;
+module.exports = videoCalltechRoute;

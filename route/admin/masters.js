@@ -1,6 +1,6 @@
 const express = require('express');
-const checkJwt = require('../middleware/checkToken');
-const Describe = require('../model/describe');
+const checkJwt = require('../../middleware/checkToken');
+const Describe = require('../../model/describe');
 const cors = require('cors');
 
 const masterRouter = express.Router();

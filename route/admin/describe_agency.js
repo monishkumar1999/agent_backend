@@ -1,6 +1,6 @@
 const express = require('express');
-const checkJwt = require('../middleware/checkToken');  // Token validation middleware
-const DescribesAgency = require('../model/describes_agency');
+const checkJwt = require('../../middleware/checkToken');  // Token validation middleware
+const DescribesAgency = require('../../model/describes_agency');
 const cors = require('cors');
 
 const describeRouter = express.Router();

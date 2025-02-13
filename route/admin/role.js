@@ -1,10 +1,9 @@
 const express = require('express');
-const checkJwt = require('../middleware/checkToken');  // Token validation middleware
-const Role = require('../model/role');
+const checkJwt = require('../../middleware/checkToken');  // Token validation middleware
+const Role = require('../../model/role');
 const cors = require('cors');
-const DigitalSolutionModel = require('../model/digitalSolution');
 
-const digitalRoute = express.Router();
+const roleMaster = express.Router();
 
 const corsOptions = {
     origin: 'http://localhost:3000',
@@ -13,29 +12,34 @@ const corsOptions = {
     credentials: true,
 };
 
-digitalRoute.use(cors(corsOptions));
-digitalRoute.options('*', cors(corsOptions));
+roleMaster.use(cors(corsOptions));
+roleMaster.options('*', cors(corsOptions));
 
 // API to add a new Role
-digitalRoute.use("/add", checkJwt, async (req, res) => {
+roleMaster.use("/add", checkJwt, async (req, res) => {
     const { name } = req.body;
- 
     try {
         if (!name) {
             throw new Error("Role name is required");
         }
 
-        // Check if role with the same name exists
-        const existingRole = await DigitalSolutionModel.findOne({ name, action: '0' });
 
-        
+       
+        if (!name || typeof name !== "string" || /\d/.test(name)) {
+            throw new Error("Role name is required and must be a string");
+        }
+
+
+        // Check if role with the same name exists
+        const existingRole = await Role.findOne({ name, action: '0' });
+
         if (existingRole) {
             throw new Error("Role with this name already exists");
         }
 
-        const roleInstance = new DigitalSolutionModel({ name });
+        const roleInstance = new Role({ name });
         const savedRole = await roleInstance.save();
-       
+
         if (savedRole) {
             res.status(200).json({
                 status: "true",
@@ -51,10 +55,10 @@ digitalRoute.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-digitalRoute.get("/view", checkJwt, async (req, res) => {
+roleMaster.get("/view", checkJwt, async (req, res) => {
 
     try {
-        const roles = await DigitalSolutionModel.find({ action: "0" });  // Fetch roles with action '0' (active)
+        const roles = await Role.find({ action: "0" });  // Fetch roles with action '0' (active)
         res.status(200).json({ status: "true", data: roles });
     } catch (err) {
         return res.status(500).json({ status: "false", message: err.message });
@@ -62,12 +66,12 @@ digitalRoute.get("/view", checkJwt, async (req, res) => {
 });
 
 // Edit an existing Role
-digitalRoute.put("/edit", checkJwt, async (req, res) => {
+roleMaster.put("/edit", checkJwt, async (req, res) => {
     const { name, newName } = req.body;
 
     try {
         // Check if the new role name already exists
-        const existingRole = await DigitalSolutionModel.findOne({ name: newName, action: "0" });
+        const existingRole = await Role.findOne({ name: newName, action: "0" });
 
         if (existingRole) {
             return res.status(400).json({
@@ -77,7 +81,7 @@ digitalRoute.put("/edit", checkJwt, async (req, res) => {
         }
 
         // Proceed with updating the role name
-        const roleInstance = await DigitalSolutionModel.findOne({ name });
+        const roleInstance = await Role.findOne({ name });
 
         if (!roleInstance) {
             return res.status(404).json({
@@ -102,7 +106,7 @@ digitalRoute.put("/edit", checkJwt, async (req, res) => {
 });
 
 // Delete a Role (by setting action to '1' instead of deletion)
-digitalRoute.delete("/delete", checkJwt, async (req, res) => {
+roleMaster.delete("/delete", checkJwt, async (req, res) => {
     const { _id } = req.body;
 
     try {
@@ -110,7 +114,7 @@ digitalRoute.delete("/delete", checkJwt, async (req, res) => {
             throw new Error("Role ID is required");
         }
 
-        const roleInstance = await DigitalSolutionModel.findOne({ _id });
+        const roleInstance = await Role.findOne({ _id });
 
         if (!roleInstance) {
             return res.status(404).json({
@@ -134,4 +138,4 @@ digitalRoute.delete("/delete", checkJwt, async (req, res) => {
     }
 });
 
-module.exports = digitalRoute;
+module.exports = roleMaster;
