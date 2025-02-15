@@ -31,6 +31,9 @@ const userRouter = require('./route/users/userRoute');
 
 const app = express();
 
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+
 const corsOptions = {
     origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -54,7 +57,6 @@ initializeSocket(server);
 
 app.use(express.json());
 app.use(cookieParser()); // ✅ Enables reading cookies
-
 
 // const corsOptions = {
 //     origin: '*', // Allow requests from any origin

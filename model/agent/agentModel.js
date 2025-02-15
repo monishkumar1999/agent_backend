@@ -44,7 +44,22 @@ const AgentSchema = new mongoose.Schema({
     phone: { type: String, required: true },
     agentDetails: { type: otherDetailsSchema },
     password: { type: String },
-    action: { type: String, enum: ['0', '1'], default: '0' }
+    action: { type: String, enum: ['0', '1'], default: '0' },
+    otpCode:{
+        type:String
+    },
+    otpExpires :{
+        type:Date
+    },
+    isSubscription:{
+        type:String,
+        enum:['0','1'],
+        default:"0"  //zero means not activate
+    },
+    averageRating: { type: Number, min: 0, max: 5, default: 0 },
+    profile_img:{
+        type:String
+    }
 }, { timestamps: true });
 
 // Ensure email and phone are unique when action = '1'
@@ -52,7 +67,7 @@ AgentSchema.pre('save', async function (next) {
     const agent = this;
 
     // Check if email or phone exists with action = '1'
-    const existingAgent = await mongoose.model("Agents").findOne({
+    const existingAgent = await mongoose.model("agents").findOne({
         $or: [{ email: agent.email }, { phone: agent.phone }],
         action: '0',
     });
@@ -67,6 +82,6 @@ AgentSchema.pre('save', async function (next) {
 
 
 // Create the model
-const AgentModel = mongoose.model('Agents', AgentSchema);
+const AgentModel = mongoose.model('agents', AgentSchema);
 
 module.exports = AgentModel;
