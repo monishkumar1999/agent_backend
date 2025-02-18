@@ -32,10 +32,12 @@ const addUser = async (req, res) => {
             action: "0", // Inactive until OTP verification
         });
 
+        await sendOtp(req, res);
+        
         await newUser.save();
 
         // Send OTP
-        await sendOtp(req, res);
+        
 
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message });
@@ -155,9 +157,8 @@ const sendOtp = async (req, res) => {
         const otpCode = generateOtp();
         const otpExpires = Date.now() + 20 * 60 * 1000; // 20 minutes validity
 
-        // Store OTP in the database
-        await usersModel.updateOne({ email }, { otp: otpCode, otpExpires });
-
+      
+      const agent=  await usersModel.updateOne({ email:email }, { otp: otpCode, otpExpires });
 
         // Send OTP via email
         await transporter.sendMail({
@@ -177,6 +178,8 @@ const sendOtp = async (req, res) => {
 
 
 const verifyOtp = async (req, res) => {
+
+    console.log(req.body)
     const { email, otp } = req.body;
 
     if (!email || !otp) {
@@ -186,7 +189,7 @@ const verifyOtp = async (req, res) => {
     try {
         const user = await usersModel.findOne({ email });
 
-        if (!user || user.otp !== otp || Date.now() > user.otpExpires) {
+        if (!user || user.otp != otp || Date.now() > user.otpExpires) {
             return res.status(400).json({ message: "Invalid or expired OTP" });
         }
 

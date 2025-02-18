@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Admin = require('../../model/admin');
 const cors = require('cors');
+const { jwt_secret_key } = require('../../utils/constant');
+const verifyAdminToken = require('../../middleware/verifyAdmin');
+const { getAgent, approveAgent, agentDetails, user } = require('../../controller/adminController');
 
 const router = express.Router();
 
@@ -17,14 +20,10 @@ const corsOptions = {
   
   router.options('*', cors(corsOptions)); // Handle preflight requests
 
-// Directly set the JWT secret key here (not recommended for production)
-const JWT_SECRET = 'your_secure_jwt_secret_key'; // Make sure to change this key and store it securely
 
 // Login route with password hashing
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-
-  console.log(2)
   if (!username || !password) {
     return res.status(400).json({ status: 'false', message: 'Username and password are required' });
   }
@@ -49,8 +48,8 @@ router.post('/login', async (req, res) => {
 
     // Create JWT token with user info
     const token = jwt.sign(
-  { userId: admin._id, username: admin.username, role: admin.role },
-  JWT_SECRET,
+  { userId: admin._id, username: admin.username, role: "admin" },
+  jwt_secret_key,
   { expiresIn: '7d' }  // Set the JWT token to expire in 7 days
 );
 
@@ -75,28 +74,13 @@ res.cookie('auth_token', token, {
   }
 });
 
-// Token verification route
-router.get('/verify-token', (req, res) => {
-  const token = req.cookies.auth_token;
+  
+router.post("/agent-view",verifyAdminToken,getAgent)
 
-  if (!token) {
-    return res.status(401).json({ status: 'false', message: 'Access denied. No token provided.' });
-  }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET); // Verify token and decode
-    res.status(200).json({
-      status: 'true',
-      message: 'Token is valid',
-      payload: decoded, // Return the decoded payload (user info)
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'false',
-      message: 'Invalid token',
-      error: err.message,
-    });
-  }
-});
+router.put('/agents-approve',verifyAdminToken,approveAgent);
 
+router.post("/get-agent-details",verifyAdminToken,agentDetails);
+
+router.get("/users-view",verifyAdminToken,user)
 module.exports = router;

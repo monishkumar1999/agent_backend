@@ -28,6 +28,7 @@ const initializeSocket = require('./utils/socket');
 const http = require('http');
 const agentRouter = require('./route/agent/agentRoute');
 const userRouter = require('./route/users/userRoute');
+const path = require('path');
 
 const app = express();
 
@@ -54,7 +55,7 @@ const server = http.createServer(app);
 initializeSocket(server);
 
 
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
 app.use(cookieParser()); // ✅ Enables reading cookies
 

@@ -12,9 +12,9 @@ const initializeSocket = (server) => {
 
     io.on('connection', (socket) => {
 
-        socket.on('joinChat', ({ userId, TargetUserId }) => {   //on like get request  // emit is send response
+        socket.on('joinChat', ({ userId, targetId }) => {   //on like get request  // emit is send response
             try {
-                const roomId = [userId, TargetUserId].sort().join("_"); // Create a unique room ID
+                const roomId = [userId, targetId].sort().join("_"); // Create a unique room ID
                 console.log(`Joining room: ${roomId}`);
                 
                 socket.join(roomId);
@@ -26,9 +26,9 @@ const initializeSocket = (server) => {
         });
         
 
-        socket.on('sendMessage', ({ userId, TargetUserId, message }) => {
+        socket.on('sendMessage', ({ userId, targetId, message }) => {
 
-            const roomId = [userId, TargetUserId].sort().join("_");
+            const roomId = [userId, targetId].sort().join("_");
          
             io.to(roomId).emit("messageReceived", { message })  // send  data to room id
 
