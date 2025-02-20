@@ -37,7 +37,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 const corsOptions = {
-    origin: "http://localhost:3000",
+    origin:[ "http://localhost:3000",'http://192.168.29.5:3000'],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Encrypted-Data"],
     credentials: true,

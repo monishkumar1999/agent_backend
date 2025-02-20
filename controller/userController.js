@@ -199,16 +199,13 @@ const verifyOtp = async (req, res) => {
         await user.save();
 
         // Generate JWT token
-        const token = jwt.sign({ id: user._id, email: user.email, role: "user" }, jwt_secret_key, {
+        const token = jwt.sign({ userId: user._id, email: user.email, role: "user" }, jwt_secret_key, {
             expiresIn: "5d",
         });
 
-        res.cookie("authToken", token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "Strict",
-            maxAge: 3600000,
-        });
+        console.log(token)
+        res.cookie("auth_token", token, { maxAge: 3600000 });
+
 
         return res.status(200).json({ message: "OTP verified. Account activated.", token });
 

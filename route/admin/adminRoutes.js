@@ -10,12 +10,15 @@ const { getAgent, approveAgent, agentDetails, user, userDetailsGet } = require('
 const router = express.Router();
 
 const corsOptions = {
-    origin: 'http://localhost:3000',  // Correct origin (React app's URL)
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Encrypted-Data'],
-    credentials: true,  // Allow cookies and credentials to be sent
-  };
-  
+  origin:[ "http://localhost:3000",'http://192.168.1.6:3000'],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Encrypted-Data"],
+  credentials: true,
+  exposedHeaders: ["Cross-Origin-Opener-Policy"], // Expose COOP
+};
+
+
+
   router.use(cors(corsOptions)); // Apply CORS middleware
   
   router.options('*', cors(corsOptions)); // Handle preflight requests
@@ -53,10 +56,11 @@ router.post('/login', async (req, res) => {
   { expiresIn: '7d' }  // Set the JWT token to expire in 7 days
 );
 
+console.log(token)
 // Set JWT token in cookie (with security flags)
 res.cookie('auth_token', token, {
   maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days expiration (in milliseconds)
-  sameSite: 'Strict',  // Mitigate CSRF attacks
+  
 });
 
     // Send the token in the response as well (if needed on frontend)

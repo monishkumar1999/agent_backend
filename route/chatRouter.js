@@ -6,7 +6,7 @@ const { default: mongoose } = require("mongoose");
 const chatRouter = express.Router();
 
 // ✅ Fetch messages using participate array
-chatRouter.get("/get-message/:senderId/:receiverId", verifyAdminToken, async (req, res) => {
+chatRouter.get("/get-message/:senderId/:receiverId", async (req, res) => {
     try {
         const { senderId, receiverId } = req.params;
 
