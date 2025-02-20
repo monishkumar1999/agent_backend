@@ -116,5 +116,20 @@ const user = async (req, res) => {
     }
 };
 
+const userDetailsGet=async(req,res)=>{
 
-module.exports = { getAgent, approveAgent, agentDetails,user };
+   const {userid}= req.body;
+   console.log(userid)
+  const user=   await usersModel.findById(userid).select("userName")
+
+ 
+   res.json({
+    status:"true",
+    data:user
+   })
+}
+
+const userSidemenu=async()=>{
+    
+}
+module.exports = { getAgent, approveAgent, agentDetails,user,userDetailsGet };

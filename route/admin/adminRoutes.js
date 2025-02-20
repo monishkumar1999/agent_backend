@@ -5,7 +5,7 @@ const Admin = require('../../model/admin');
 const cors = require('cors');
 const { jwt_secret_key } = require('../../utils/constant');
 const verifyAdminToken = require('../../middleware/verifyAdmin');
-const { getAgent, approveAgent, agentDetails, user } = require('../../controller/adminController');
+const { getAgent, approveAgent, agentDetails, user, userDetailsGet } = require('../../controller/adminController');
 
 const router = express.Router();
 
@@ -83,4 +83,10 @@ router.put('/agents-approve',verifyAdminToken,approveAgent);
 router.post("/get-agent-details",verifyAdminToken,agentDetails);
 
 router.get("/users-view",verifyAdminToken,user)
+
+router.post("/user-name",verifyAdminToken,userDetailsGet)
+
+
+router.get("/users-userSidemenu",verifyAdminToken,user)
+
 module.exports = router;
