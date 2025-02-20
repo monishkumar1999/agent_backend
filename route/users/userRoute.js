@@ -26,6 +26,15 @@ userRouter.put(
 );
 userRouter.post("/verify-otp", verifyOtp);
 userRouter.post("/store-proposal", verifyUserJwt, addProposal);
+userRouter.post("/google-login", loginWithGoogle);
+userRouter.put(
+  "/userProfile-update",
+  verifyUserJwt,
+  upload.single("profileImage"),
+  updateUserProfile
+);
+userRouter.post("/verify-otp", verifyOtp);
+userRouter.post("/store-proposal", verifyUserJwt, addProposal);
 
 userRouter.post("/find-agent", verifyUserJwt, getAgentsByProposal);
 

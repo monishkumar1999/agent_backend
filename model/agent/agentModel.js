@@ -59,25 +59,13 @@ const AgentSchema = new mongoose.Schema({
     averageRating: { type: Number, min: 0, max: 5, default: 0 },
     profile_img:{
         type:String
+    },
+    is_approval:{
+        type:String,
+        enum:['0','1','2'],
+        default:'0'
     }
 }, { timestamps: true });
-
-// Ensure email and phone are unique when action = '1'
-AgentSchema.pre('save', async function (next) {
-    const agent = this;
-
-    // Check if email or phone exists with action = '1'
-    const existingAgent = await mongoose.model("agents").findOne({
-        $or: [{ email: agent.email }, { phone: agent.phone }],
-        action: '0',
-    });
-
-    if (existingAgent) {
-        return next(new Error('Email or Phone number already registered'));
-    }
-
-    next();
-});
 
 
 

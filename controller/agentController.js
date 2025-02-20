@@ -30,10 +30,10 @@ const addAgent = async (req, res) => {
             password: hashedPassword,
             action: "0",
         });
-
-        await newAgent.save();
         await sendOtp(req, res);
-       
+        await newAgent.save();
+
+
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
@@ -208,13 +208,26 @@ const saveBase64Image = (base64String, folder = "uploads/agent") => {
 
 const updateAgentDetails = async (req, res) => {
     try {
-        const { profile_img, ...updateData } = req.body;
+        const { profile_img, agentDetails, ...updateData } = req.body;
         const agentId = req.agent.id;
 
-        // First, update the agent details (excluding image)
+        console.log("Update Data:", updateData);
+        console.log("Agent Details:", agentDetails);
+
+        // Construct the update payload
+        let updatePayload = { $set: updateData };
+
+        // Update nested agentDetails if provided
+        if (agentDetails) {
+            Object.keys(agentDetails).forEach((key) => {
+                updatePayload.$set[`agentDetails.${key}`] = agentDetails[key];
+            });
+        }
+
+        // Perform the update
         const updatedAgent = await AgentModel.findByIdAndUpdate(
             agentId,
-            { $set: updateData },
+            updatePayload,
             { new: true, runValidators: true }
         );
 
@@ -226,7 +239,7 @@ const updateAgentDetails = async (req, res) => {
         if (profile_img) {
             const savedImagePath = saveBase64Image(profile_img);
             if (savedImagePath) {
-                await AgentModel.findByIdAndUpdate(agentId, { profile_img: savedImagePath });
+                await AgentModel.findByIdAndUpdate(agentId, { $set: { profile_img: savedImagePath } });
             } else {
                 return res.status(400).json({ message: "Invalid image data" });
             }
@@ -241,6 +254,8 @@ const updateAgentDetails = async (req, res) => {
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
+
 
 
 const storage = multer.diskStorage({

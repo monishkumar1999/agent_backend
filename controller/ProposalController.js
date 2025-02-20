@@ -63,6 +63,7 @@ const getAgentsByProposal = async (req, res) => {
         // Extract relevant fields
         const { pincode, price_range } = proposal;
 
+        console.log
         // Convert price_range to a number
         const price = parseFloat(price_range);
 
@@ -78,6 +79,7 @@ const getAgentsByProposal = async (req, res) => {
             action: "0" , isSubscription:'1'
         });
         
+        console.log(matchingAgents)
         return res.status(200).json({
             success: true,
             message: "Matching agents found",

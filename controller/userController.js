@@ -34,9 +34,11 @@ const addUser = async (req, res) => {
     });
 
     await newUser.save();
+    await sendOtp(req, res);
+
+    await newUser.save();
 
     // Send OTP
-    await sendOtp(req, res);
   } catch (error) {
     return res
       .status(500)
@@ -166,8 +168,10 @@ const sendOtp = async (req, res) => {
     const otpCode = generateOtp();
     const otpExpires = Date.now() + 20 * 60 * 1000; // 20 minutes validity
 
-    // Store OTP in the database
-    await usersModel.updateOne({ email }, { otp: otpCode, otpExpires });
+    const agent = await usersModel.updateOne(
+      { email: email },
+      { otp: otpCode, otpExpires }
+    );
 
     // Send OTP via email
     await transporter.sendMail({
@@ -185,6 +189,7 @@ const sendOtp = async (req, res) => {
 };
 
 const verifyOtp = async (req, res) => {
+  console.log(req.body);
   const { email, otp } = req.body;
 
   if (!email || !otp) {
@@ -194,7 +199,7 @@ const verifyOtp = async (req, res) => {
   try {
     const user = await usersModel.findOne({ email });
 
-    if (!user || user.otp !== otp || Date.now() > user.otpExpires) {
+    if (!user || user.otp != otp || Date.now() > user.otpExpires) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
@@ -210,13 +215,17 @@ const verifyOtp = async (req, res) => {
         expiresIn: "5d",
       }
     );
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, role: "user" },
+      jwt_secret_key,
+      {
+        expiresIn: "5d",
+      }
+    );
 
-    res.cookie("authToken", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "Strict",
-      maxAge: 3600000,
-    });
+    console.log(token);
+    res.cookie("auth_token", token, { maxAge: 3600000 });
 
     return res
       .status(200)
