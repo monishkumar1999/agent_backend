@@ -6,7 +6,7 @@ const agentRouter = express.Router();
 
 
 agentRouter.post("/register",addAgent)
-agentRouter.get("/login",loginAgent)
+agentRouter.post("/login",loginAgent)
 agentRouter.post("/google-login",loginwithGoogle)
 agentRouter.post("/verify-otp", verifyOtp);
 agentRouter.put("/add-agent-details",verifyAgentJwt,updateAgentDetails);

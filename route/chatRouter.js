@@ -93,6 +93,80 @@ chatRouter.get("/recent-chats/:userId", verifyAdminToken, async (req, res) => {
     }
   });
 
+
+
   
+  chatRouter.get("/recent-agentchats/:userId", verifyAdminToken, async (req, res) => {
+    try {
+      let { userId } = req.user;
+      userId = new mongoose.Types.ObjectId(userId); // Ensure ObjectId
+  
+      // Aggregate to get recent chats with agents instead of users
+      const recentChats = await Message.aggregate([
+        {
+          $match: {
+            participate: userId, // Match messages where userId is a participant
+          },
+        },
+        {
+          $sort: { timestamp: -1 }, // Sort by latest message first
+        },
+        {
+          $group: {
+            _id: {
+              $cond: [
+                { $lt: [{ $arrayElemAt: ["$participate", 0] }, { $arrayElemAt: ["$participate", 1] }] },
+                { agent1: { $arrayElemAt: ["$participate", 0] }, agent2: { $arrayElemAt: ["$participate", 1] } },
+                { agent1: { $arrayElemAt: ["$participate", 1] }, agent2: { $arrayElemAt: ["$participate", 0] } }
+              ],
+            },
+            lastMessage: { $first: "$message" },
+            lastMessageTime: { $first: "$timestamp" },
+            sender: { $first: "$sender" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            lastMessage: 1,
+            lastMessageTime: 1,
+            receiverId: {
+              $cond: [
+                { $eq: ["$_id.agent1", userId] },
+                "$_id.agent2",
+                "$_id.agent1",
+              ],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "agents", // Join with the agents collection
+            localField: "receiverId",
+            foreignField: "_id",
+            as: "receiver",
+          },
+        },
+        { $unwind: "$receiver" },
+        {
+          $project: {
+            receiverId: "$receiver._id",
+            firstName: "$receiver.firstName",
+            lastName: "$receiver.lastName",
+            profile_img: "$receiver.profile_img",
+            lastMessage: 1,
+            lastMessageTime: 1,
+          },
+        },
+        { $sort: { lastMessageTime: -1 } }, // Sort again by last message time
+      ]);
+  
+      res.status(200).json({ chats: recentChats });
+    } catch (error) {
+      console.error("Error fetching recent chats:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 
 module.exports = { chatRouter };
