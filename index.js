@@ -28,6 +28,8 @@ const initializeSocket = require('./utils/socket');
 const http = require('http');
 const agentRouter = require('./route/agent/agentRoute');
 const userRouter = require('./route/users/userRoute');
+const path = require('path');
+const { chatRouter } = require('./route/chatRouter');
 
 const app = express();
 
@@ -35,7 +37,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 const corsOptions = {
-    origin: "http://localhost:3000",
+    origin:[ "http://localhost:3000",'http://192.168.29.5:3000'],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Encrypted-Data"],
     credentials: true,
@@ -54,7 +56,7 @@ const server = http.createServer(app);
 initializeSocket(server);
 
 
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
 app.use(cookieParser()); // ✅ Enables reading cookies
 
@@ -204,6 +206,10 @@ app.use('/communicate', prefferedCommunicateRoute)
 app.use("/agent",agentRouter);
 app.use("/user",userRouter)
 
+
+// chat 
+
+app.use("/chat",chatRouter)
 const authenticateToken = (req, res, next) => {
     const token = req.body.token;
 

@@ -9,7 +9,7 @@ userRouter.post("/add", addUser);
 userRouter.post("/login", loginUser);
 userRouter.post("/google-login",loginWithGoogle);
 userRouter.put("/userProfile-update", verifyUserJwt, upload.single("profileImage"), updateUserProfile);
-userRouter.get("/verify-otp", verifyOtp); 
+userRouter.post("/verify-otp", verifyOtp); 
 userRouter.post("/store-proposal",verifyUserJwt,addProposal)
 
 userRouter.post("/find-agent",verifyUserJwt,getAgentsByProposal )

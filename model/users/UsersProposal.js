@@ -42,6 +42,11 @@ const Proposal = mongoose.Schema({
         type:String,
         enum:['0','1'],
         default:'0'
+    },
+    is_close:{
+        type:String,
+        enum:['0','1'],
+        default:['0']
     }
 },{timestamps:true})
 
