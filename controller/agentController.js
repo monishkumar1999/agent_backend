@@ -41,6 +41,9 @@ const addAgent = async (req, res) => {
 
 
 const loginAgent = async (req, res) => {
+
+    console.log(req)
+   
     try {
         const { email, phone, password } = req.body;
 
@@ -51,11 +54,14 @@ const loginAgent = async (req, res) => {
             action: "0",
         });
 
+       
         if (!agent) {
             return res.status(400).json({ message: "Invalid email/phone or password" });
         }
 
         const isMatch = await bcrypt.compare(password, agent.password);
+
+        
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid email/phone or password" });
         }
@@ -148,15 +154,19 @@ const verifyOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
 
- 
+       
         const agent = await AgentModel.findOne({ email, action: "0" });
-        console.log( agent)
+
+       
+
         if (!agent) {
             return res.status(400).json({ message: "Agent not found" });
         }
 
+   
+
         // Check if OTP is valid
-        if (agent.otpCode != otp || Date.now() > agent.otpExpires) {
+        if (agent.otpCode != otp ) {
             return res.status(400).json({ message: "Invalid or expired OTP" });
         }
 
@@ -172,8 +182,8 @@ const verifyOtp = async (req, res) => {
         console.log(token)
 
         // Set cookie
-        res.cookie("auth_token", token, {
-          
+        res.cookie("authToken", token, {
+            httpOnly: true,
             maxAge: 3600000,
         });
 
