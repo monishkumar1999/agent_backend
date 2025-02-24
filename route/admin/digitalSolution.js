@@ -51,7 +51,7 @@ digitalRoute.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-digitalRoute.get("/view", checkJwt, async (req, res) => {
+digitalRoute.get("/view", async (req, res) => {
 
     try {
         const roles = await DigitalSolutionModel.find({ action: "0" });  // Fetch roles with action '0' (active)

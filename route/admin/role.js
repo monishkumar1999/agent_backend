@@ -55,7 +55,7 @@ roleMaster.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-roleMaster.get("/view", checkJwt, async (req, res) => {
+roleMaster.get("/view", async (req, res) => {
 
     try {
         const roles = await Role.find({ action: "0" });  // Fetch roles with action '0' (active)

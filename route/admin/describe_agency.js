@@ -48,7 +48,7 @@ describeRouter.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Describes Agencies
-describeRouter.get("/view", checkJwt, async (req, res) => {
+describeRouter.get("/view",async (req, res) => {
     try {
         const agencies = await DescribesAgency.find({ action: "0" });  // Fetch agencies with action '0' (active)
         res.status(200).json({ status: "true", data: agencies });

@@ -51,7 +51,7 @@ videoCalltechRoute.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-videoCalltechRoute.get("/view", checkJwt, async (req, res) => {
+videoCalltechRoute.get("/view", async (req, res) => {
 
     try {
         const roles = await VideoCallTechModel.find({ action: "0" });  // Fetch roles with action '0' (active)

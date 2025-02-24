@@ -51,7 +51,7 @@ purchasePurpose.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-purchasePurpose.get("/view", checkJwt, async (req, res) => {
+purchasePurpose.get("/view", async (req, res) => {
 
     try {
         const roles = await PurchasePurpose.find({ action: "0" });  // Fetch roles with action '0' (active)
