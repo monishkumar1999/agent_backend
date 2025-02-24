@@ -199,6 +199,7 @@ const verifyOtp = async (req, res) => {
   try {
     const user = await usersModel.findOne({ email });
 
+    console.log(user);
     if (!user || user.otp != otp || Date.now() > user.otpExpires) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
@@ -207,14 +208,6 @@ const verifyOtp = async (req, res) => {
     user.otpExpires = null;
     await user.save();
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: user._id, email: user.email, role: "user" },
-      jwt_secret_key,
-      {
-        expiresIn: "5d",
-      }
-    );
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: "user" },
