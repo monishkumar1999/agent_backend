@@ -8,6 +8,32 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "uploads/agent"); // Ensure this directory exists
+    },
+    filename: function (req, file, cb) {
+        cb(null, "profile-" + Date.now() + path.extname(file.originalname));
+    },
+});
+const upload = multer({
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+        const fileTypes = /jpeg|jpg|png/; // Allow only images
+        const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimeType = fileTypes.test(file.mimetype);
+
+        if (mimeType && extName) {
+            return cb(null, true);
+        } else {
+            return cb(new Error("Only images (jpeg, jpg, png) are allowed!"));
+        }
+    },
+    limits: { fileSize: 2 * 1024 * 1024 }, // Limit file size to 2MB
+});
+
 const addAgent = async (req, res) => {
     try {
         const { firstName, lastName, email, phone, password } = req.body;
@@ -42,8 +68,7 @@ const addAgent = async (req, res) => {
 
 const loginAgent = async (req, res) => {
 
-    console.log(req)
-   
+
     try {
         const { email, phone, password } = req.body;
 
@@ -54,14 +79,14 @@ const loginAgent = async (req, res) => {
             action: "0",
         });
 
-       
+
         if (!agent) {
             return res.status(400).json({ message: "Invalid email/phone or password" });
         }
 
         const isMatch = await bcrypt.compare(password, agent.password);
 
-        
+
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid email/phone or password" });
         }
@@ -154,19 +179,19 @@ const verifyOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
 
-       
+
         const agent = await AgentModel.findOne({ email, action: "0" });
 
-       
+
 
         if (!agent) {
             return res.status(400).json({ message: "Agent not found" });
         }
 
-   
+
 
         // Check if OTP is valid
-        if (agent.otpCode != otp ) {
+        if (agent.otpCode != otp) {
             return res.status(400).json({ message: "Invalid or expired OTP" });
         }
 
@@ -182,7 +207,7 @@ const verifyOtp = async (req, res) => {
 
         // Set cookie
         res.cookie("authToken", token, {
-           
+
             maxAge: 3600000,
         });
 
@@ -267,29 +292,30 @@ const updateAgentDetails = async (req, res) => {
 
 
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, "uploads/agent"); // Ensure this directory exists
-    },
-    filename: function (req, file, cb) {
-        cb(null, "profile-" + Date.now() + path.extname(file.originalname));
-    },
-});
-const upload = multer({
-    storage: storage,
-    fileFilter: function (req, file, cb) {
-        const fileTypes = /jpeg|jpg|png/; // Allow only images
-        const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimeType = fileTypes.test(file.mimetype);
 
-        if (mimeType && extName) {
-            return cb(null, true);
-        } else {
-            return cb(new Error("Only images (jpeg, jpg, png) are allowed!"));
-        }
-    },
-    limits: { fileSize: 2 * 1024 * 1024 }, // Limit file size to 2MB
-});
+const viewAgentDetails = async (req, res) => {
+
+    const agentId = req.agent.id;
+
+    const agentDetails = await AgentModel.findOne({
+        _id: agentId
+    })
 
 
-module.exports = { addAgent, loginAgent, loginwithGoogle, updateAgentDetails, verifyOtp };
+    if (!agentDetails) {
+        return res.json({
+            status: "false",
+            message: "No data found"
+        })
+    }
+
+
+    res.json({
+        status: "true",
+        data: agentDetails
+    })
+}
+
+
+
+module.exports = { addAgent, loginAgent, loginwithGoogle, updateAgentDetails, verifyOtp, viewAgentDetails };
