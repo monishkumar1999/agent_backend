@@ -12,6 +12,7 @@ const multer = require("multer");
 const {
   addProposal,
   getAgentsByProposal,
+  proposalRequestGiveToAgent,
 } = require("../../controller/ProposalController");
 
 const userRouter = express.Router();
@@ -26,16 +27,11 @@ userRouter.put(
 );
 userRouter.post("/verify-otp", verifyOtp);
 userRouter.post("/store-proposal", verifyUserJwt, addProposal);
-userRouter.post("/google-login", loginWithGoogle);
-userRouter.put(
-  "/userProfile-update",
-  verifyUserJwt,
-  upload.single("profileImage"),
-  updateUserProfile
-);
-userRouter.post("/verify-otp", verifyOtp);
-userRouter.post("/store-proposal", verifyUserJwt, addProposal);
-
 userRouter.post("/find-agent", verifyUserJwt, getAgentsByProposal);
+userRouter.post(
+  "/give-request-to-agent",
+  verifyUserJwt,
+  proposalRequestGiveToAgent
+);
 
 module.exports = userRouter;
