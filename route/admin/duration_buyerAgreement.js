@@ -50,7 +50,7 @@ durationRoute.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-durationRoute.get("/view", checkJwt, async (req, res) => {
+durationRoute.get("/view", async (req, res) => {
   
     
     try {

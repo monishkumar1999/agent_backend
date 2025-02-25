@@ -49,7 +49,7 @@ serviceProvide.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-serviceProvide.get("/view", checkJwt, async (req, res) => {
+serviceProvide.get("/view",  async (req, res) => {
   
     try {
         const roles = await Full_range_service.find({ action: "0" });  // Fetch roles with action '0' (active)
