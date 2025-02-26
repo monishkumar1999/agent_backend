@@ -183,7 +183,7 @@ const verifyOtp = async (req, res) => {
 
         // Set cookie
         res.cookie("authToken", token, {
-            httpOnly: true,
+           
             maxAge: 3600000,
         });
 
