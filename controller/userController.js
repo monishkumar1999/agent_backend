@@ -53,6 +53,8 @@ const loginUser = async (req, res) => {
     // Find user where action is "1" (active users only)
     const user = await usersModel.findOne({ email, action: "0" });
 
+    console.log(user);
+
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
@@ -218,7 +220,7 @@ const verifyOtp = async (req, res) => {
     );
 
     console.log(token);
-    res.cookie("auth_token", token, { maxAge: 3600000 });
+    res.cookie("authToken", token, { maxAge: 3600000 });
 
     return res
       .status(200)
