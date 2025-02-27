@@ -19,7 +19,7 @@ const verifyUserJwt = async (req, res, next) => {
     }
 
     // Fetch user from DB & ensure action = '0'
-    const userDetails = await usersModel.findOne({ _id: decoded.id, action: "0" });
+    const userDetails = await usersModel.findOne({ _id: decoded.userId, action: "0" });
 
     if (!userDetails) {
       return res.status(403).json({ message: "Forbidden: User is inactive or not found" });

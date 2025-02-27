@@ -13,7 +13,8 @@ const addProposal = async (req, res) => {
             pincode,
             property_buying_plain,
             purpose_purchase,
-            communicate_preferred
+            communicate_preferred,
+            address
         } = req.body;
 
         // Validate required fields
@@ -31,6 +32,7 @@ const addProposal = async (req, res) => {
             purpose_purchase,
             communicate_preferred,
             userId,
+            address
         });
 
         // Save to database
