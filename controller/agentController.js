@@ -298,7 +298,8 @@ const updateAgentDetails = async (req, res) => {
 
 const viewAgentDetails = async (req, res) => {
 
-    const agentId = req.agent.user_id;
+    const agentId = req.agent.userId;
+
 
     const agentDetails = await AgentModel.findOne({
         _id: agentId
