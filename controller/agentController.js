@@ -156,7 +156,7 @@ const loginwithGoogle = async (req, res) => {
     }
 
     const token = jwt.sign(
-        { id: agent._id, email: agent.email, role: "agent" },
+        { userId: agent._id, email: agent.email, role: "agent" },
         jwt_secret_key,
         { expiresIn: "5d" }
     );
@@ -243,7 +243,7 @@ const saveBase64Image = (base64String, folder = "uploads/agent") => {
 const updateAgentDetails = async (req, res) => {
     try {
         const { profile_img, agentDetails, ...updateData } = req.body;
-        const agentId = req.agent.id;
+        const agentId = req.agent.userId;
 
         console.log(agentDetails)
         if (!agentId) {
@@ -298,7 +298,7 @@ const updateAgentDetails = async (req, res) => {
 
 const viewAgentDetails = async (req, res) => {
 
-    const agentId = req.agent.id;
+    const agentId = req.agent.user_id;
 
     const agentDetails = await AgentModel.findOne({
         _id: agentId
