@@ -68,29 +68,28 @@ const getAgentsByProposal = async (req, res) => {
         const { proposalId } = req.body;
         const proposal = await UserProposalModel.findById(proposalId);
 
-        console.log(proposal)
-
         if (!proposal) {
             return res.status(404).json({ success: false, message: "Proposal not found" });
         }
-        // Extract relevant fields
-        const { pincode, price_range } = proposal;
-        // Convert price_range to a number
-        const price = parseFloat(price_range);
 
-        if (isNaN(price)) {
+        const { pincode, price_range } = proposal;
+        if (!price_range || typeof price_range !== 'object' || isNaN(price_range.min) || isNaN(price_range.max)) {
             return res.status(400).json({ success: false, message: "Invalid price range" });
         }
 
-        // Step 2: Find agents matching the criteria
+        // Convert pincode to numbers
+        const pincodeNumbers = pincode.map(pc => parseInt(pc, 10)).filter(pc => !isNaN(pc));
+
+
+        // Find matching agents
         const matchingAgents = await AgentModel.find({
-            "agentDetails.postCode_cover": { $in: pincode }, // At least one matching pincode
-            "agentDetails.fees_structure.min": { $lte: price }, // Min fee <= price
-            "agentDetails.fees_structure.max": { $gte: price }, // Max fee >= price
-            action: "0", isSubscription: '1'
+            "agentDetails.postCode_cover": { $in: pincodeNumbers }, 
+            // "agentDetails.fees_structure.min": { $lte: price_range.min },
+            // "agentDetails.fees_structure.max": { $gte: price_range.max },
+            action: "0", 
+            isSubscription: "1"
         });
 
-        console.log(matchingAgents)
         return res.status(200).json({
             success: true,
             message: "Matching agents found",
@@ -98,10 +97,11 @@ const getAgentsByProposal = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error fetching agents:", error);
+        console.error("Error fetching agents:", error.message, error.stack);
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     }
 };
+
 
 const proposalRequestGiveToAgent = async (req, res) => {
     try {
