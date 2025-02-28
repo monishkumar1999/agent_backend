@@ -204,7 +204,7 @@ const verifyOtp = async (req, res) => {
         });
 
         console.log(token)
-        res.cookie("auth_token", token, { maxAge: 3600000 });
+        res.cookie("authTtoken", token, { maxAge: 3600000 });
 
 
         return res.status(200).json({ message: "OTP verified. Account activated.", token });
