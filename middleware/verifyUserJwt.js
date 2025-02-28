@@ -4,9 +4,10 @@ const usersModel = require("../model/users/usersModel");
 
 const verifyUserJwt = async (req, res, next) => {
   try {
+ 
     // Get token from cookies or Authorization header
     const token = req.cookies?.authToken || req.headers.authorization?.split(" ")[1];
-
+    
     if (!token) {
       return res.status(401).json({ message: "Unauthorized: No token provided" });
     }

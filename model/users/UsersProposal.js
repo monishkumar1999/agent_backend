@@ -27,7 +27,7 @@ const Proposal = new mongoose.Schema({
         required: true
     },
     price_range: {
-        type: String,
+        type: [String],
         required: true
     },
     pincode: {
