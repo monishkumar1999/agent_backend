@@ -1,83 +1,84 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const agentsSchema = new mongoose.Schema({
-    agent_id: {
-        type: mongoose.Schema.ObjectId,
-        ref: "agents",
-        required: true
-    }
+  agent_id: {
+    type: mongoose.Schema.ObjectId,
+    ref: "agents",
+    required: true,
+  },
 });
 
 const messageSchema = new mongoose.Schema({
-    participate: [{ type: mongoose.Schema.Types.ObjectId }], // Added ref for users
-    sender: { type: mongoose.Schema.Types.ObjectId }, // Added ref for users
-    message: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now },
-    seen: { type: Boolean, default: false }
+  participate: [{ type: mongoose.Schema.Types.ObjectId }], // Added ref for users
+  sender: { type: mongoose.Schema.Types.ObjectId }, // Added ref for users
+  message: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
+  seen: { type: Boolean, default: false },
 });
 
-const Proposal = new mongoose.Schema({
+const Proposal = new mongoose.Schema(
+  {
     propertyType: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'properties',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "properties",
+      required: true,
     },
     noOfBedRooms: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     price_range: {
-        type: [String],
-        required: true
+      type: [String],
+      required: true,
     },
     pincode: {
-        type: [String],
-        required: true
+      type: [String],
+      required: true,
     },
     property_buying_plain: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     purpose_purchase: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "purchase_purpose",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "purchase_purpose",
+      required: true,
     },
     communicate_preferred: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "communicatePreferred",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "communicatePreferred",
+      required: true,
     },
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "users",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
     },
     action: {
-        type: String,
-        enum: ['0', '1'],
-        default: '0'
+      type: String,
+      enum: ["0", "1"],
+      default: "0",
     },
     is_close: {
-        type: String,
-        enum: ['0', '1'],
-        default: '0' // Fixed default value
+      type: String,
+      enum: ["0", "1"],
+      default: "0", // Fixed default value
     },
-    address:{
-        type:String,
-        required:true
+    location: {
+      type: String,
+      required: true,
     },
     agents: {
-        type: [agentsSchema], 
-        default: []
+      type: [agentsSchema],
+      default: [],
     },
     chats: {
-        type: [messageSchema],
-        default: []
+      type: [messageSchema],
+      default: [],
     },
-   
-}, { timestamps: true });
-
+  },
+  { timestamps: true }
+);
 
 const UserProposalModel = mongoose.model("userProposal", Proposal);
 

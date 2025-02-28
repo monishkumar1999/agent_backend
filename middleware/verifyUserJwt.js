@@ -17,13 +17,14 @@ const verifyUserJwt = async (req, res, next) => {
     // Verify JWT synchronously before querying the DB
     const decoded = await jwt.verify(token, jwt_secret_key);
 
+    console.log(decoded);
     if (decoded.role !== "user") {
       return res.status(403).json({ message: "Forbidden: Unauthorized role" });
     }
 
     // Fetch user from DB & ensure action = '0'
     const userDetails = await usersModel.findOne({
-      _id: decoded.id,
+      _id: decoded.userId,
       action: "0",
     });
 
