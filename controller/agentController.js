@@ -244,9 +244,9 @@ const saveBase64Image = (base64String, folder = "uploads/agent") => {
 const updateAgentDetails = async (req, res) => {
     try {
         const { profile_img, agentDetails, ...updateData } = req.body;
-        const agentId = req.agent.id;
-
-        console.log(agentDetails)
+        const agentId = req.agent.userId;
+ 
+        console.log(agentId)
         if (!agentId) {
             return res.status(400).json({ message: "Agent ID is required" });
         }
