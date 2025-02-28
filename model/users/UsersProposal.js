@@ -27,7 +27,7 @@ const Proposal = new mongoose.Schema({
         required: true
     },
     price_range: {
-        type: String,
+        type: [String],
         required: true
     },
     pincode: {
@@ -63,6 +63,10 @@ const Proposal = new mongoose.Schema({
         enum: ['0', '1'],
         default: '0' // Fixed default value
     },
+    address:{
+        type:String,
+        required:true
+    },
     agents: {
         type: [agentsSchema], 
         default: []
@@ -70,8 +74,10 @@ const Proposal = new mongoose.Schema({
     chats: {
         type: [messageSchema],
         default: []
-    }
+    },
+   
 }, { timestamps: true });
+
 
 const UserProposalModel = mongoose.model("userProposal", Proposal);
 

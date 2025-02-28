@@ -4,9 +4,10 @@ const usersModel = require("../model/users/usersModel");
 
 const verifyUserJwt = async (req, res, next) => {
   try {
+ 
     // Get token from cookies or Authorization header
     const token = req.cookies?.authToken || req.headers.authorization?.split(" ")[1];
-
+    
     if (!token) {
       return res.status(401).json({ message: "Unauthorized: No token provided" });
     }
@@ -19,7 +20,7 @@ const verifyUserJwt = async (req, res, next) => {
     }
 
     // Fetch user from DB & ensure action = '0'
-    const userDetails = await usersModel.findOne({ _id: decoded.id, action: "0" });
+    const userDetails = await usersModel.findOne({ _id: decoded.userId, action: "0" });
 
     if (!userDetails) {
       return res.status(403).json({ message: "Forbidden: User is inactive or not found" });
