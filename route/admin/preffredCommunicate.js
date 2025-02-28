@@ -52,7 +52,7 @@ prefferedCommunicateRoute.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-prefferedCommunicateRoute.get("/view", checkJwt, async (req, res) => {
+prefferedCommunicateRoute.get("/view", async (req, res) => {
 
     try {
         const roles = await preffredCommunicate.find({ action: "0" });  // Fetch roles with action '0' (active)

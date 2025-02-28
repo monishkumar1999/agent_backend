@@ -49,7 +49,7 @@ const initializeSocket = (server) => {
                     timestamp: new Date().toISOString(),
                 });
 
-                console.log(`📩 Message sent in room ${roomId} by ${userId}: ${message}`);
+                // console.log(`📩 Message sent in room ${roomId} by ${userId}: ${message}`);
             } catch (error) {
                 console.error("❌ Error sending message:", error);
             }

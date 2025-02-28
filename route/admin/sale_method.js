@@ -49,7 +49,7 @@ saleMethod.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-saleMethod.get("/view", checkJwt, async (req, res) => {
+saleMethod.get("/view", async (req, res) => {
   
     try {
         const roles = await Sale_method.find({ action: "0" });  // Fetch roles with action '0' (active)

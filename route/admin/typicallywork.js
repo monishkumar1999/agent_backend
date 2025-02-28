@@ -51,7 +51,7 @@ typicallyRoute.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-typicallyRoute.get("/view", checkJwt, async (req, res) => {
+typicallyRoute.get("/view", async (req, res) => {
 
     try {
         const roles = await Typeciallywork.find({ action: "0" });  // Fetch roles with action '0' (active)
