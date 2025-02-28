@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 
 const otherDetailsSchema = new mongoose.Schema({
     aboutAgent: { type: String, required: true },
+    role:{type:String,required:true},
     aboutAgency: { type: String, required: true },
     NegotiationStyle: { type: String, required: true },
     describes_agent: { type: String, required: true },
@@ -32,7 +33,16 @@ const otherDetailsSchema = new mongoose.Schema({
     fees_structure: {
         min: { type: Number, required: true },
         max: { type: Number, required: true }
-    }
+    },
+    chargeType: {
+        type: String,
+        enum: ['percentage', 'flat'],
+        required: true
+    },
+  fee:{
+    type:String,
+    required:true
+  }
 }, { _id: false });
 
 const dealSchema = new mongoose.Schema({

@@ -245,17 +245,32 @@ const updateAgentDetails = async (req, res) => {
         const { profile_img, agentDetails, ...updateData } = req.body;
         const agentId = req.agent.id;
 
-        console.log("Update Data:", updateData);
-        console.log("Agent Details:", agentDetails);
+        console.log(agentDetails)
+        if (!agentId) {
+            return res.status(400).json({ message: "Agent ID is required" });
+        }
+
+        // Validate and Save Image First
+        let savedImagePath;
+        if (profile_img) {
+            savedImagePath = saveBase64Image(profile_img);
+            if (!savedImagePath) {
+                return res.status(400).json({ message: "Invalid image data" });
+            }
+        }
 
         // Construct the update payload
         let updatePayload = { $set: updateData };
 
-        // Update nested agentDetails if provided
         if (agentDetails) {
             Object.keys(agentDetails).forEach((key) => {
                 updatePayload.$set[`agentDetails.${key}`] = agentDetails[key];
             });
+        }
+
+        // If an image was saved, update profile_img
+        if (savedImagePath) {
+            updatePayload.$set.profile_img = savedImagePath;
         }
 
         // Perform the update
@@ -269,25 +284,13 @@ const updateAgentDetails = async (req, res) => {
             return res.status(404).json({ message: "Agent not found" });
         }
 
-        // Now, save the image if provided
-        if (profile_img) {
-            const savedImagePath = saveBase64Image(profile_img);
-            if (savedImagePath) {
-                await AgentModel.findByIdAndUpdate(agentId, { $set: { profile_img: savedImagePath } });
-            } else {
-                return res.status(400).json({ message: "Invalid image data" });
-            }
-        }
-
-        // Fetch the latest updated agent data
-        const finalAgent = await AgentModel.findById(agentId);
-
-        return res.status(200).json({ message: "Agent details updated successfully", agent: finalAgent });
+        return res.status(200).json({ message: "Agent details updated successfully", agent: updatedAgent });
     } catch (error) {
         console.error("Update Agent Error:", error);
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
 
 
 

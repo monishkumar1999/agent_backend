@@ -3,9 +3,13 @@ const { UserProposalModel } = require("../model/users/UsersProposal");
 
 const addProposal = async (req, res) => {
   try {
-    const userId = req.user.id; // Get user ID from request (ensure authentication middleware is used)
+    const userId = req.user?.id; // Ensure userId exists
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized access" });
+    }
 
-    // Extract data from request body
     const {
       propertyType,
       noOfBedRooms,
@@ -18,19 +22,49 @@ const addProposal = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (
-      !propertyType ||
-      !noOfBedRooms ||
-      !price_range ||
-      !pincode ||
-      !property_buying_plain ||
-      !purpose_purchase ||
-      !communicate_preferred
-    ) {
+    if (!propertyType)
       return res
         .status(400)
-        .json({ success: false, message: "All fields are required." });
+        .json({ success: false, message: "Property type is required." });
+    if (!noOfBedRooms)
+      return res
+        .status(400)
+        .json({ success: false, message: "Number of bedrooms is required." });
+    if (
+      !price_range ||
+      price_range.min === undefined ||
+      price_range.max === undefined
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Price range (min & max) is required.",
+      });
     }
+    if (!pincode || !Array.isArray(pincode) || pincode.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one pincode is required as an array.",
+      });
+    }
+    if (!property_buying_plain)
+      return res
+        .status(400)
+        .json({ success: false, message: "Property buying plan is required." });
+    if (!purpose_purchase)
+      return res
+        .status(400)
+        .json({ success: false, message: "Purpose of purchase is required." });
+    if (!communicate_preferred)
+      return res.status(400).json({
+        success: false,
+        message: "Preferred communication method is required.",
+      });
+    if (!location)
+      return res
+        .status(400)
+        .json({ success: false, message: "Location is required." });
+
+    // Create a new proposal document
 
     // Create a new proposal document
     const newProposal = new UserProposalModel({
@@ -55,13 +89,11 @@ const addProposal = async (req, res) => {
     });
   } catch (error) {
     console.error("Error adding proposal:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 
@@ -105,13 +137,11 @@ const getAgentsByProposal = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching agents:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 

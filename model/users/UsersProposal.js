@@ -28,8 +28,8 @@ const Proposal = new mongoose.Schema(
       required: true,
     },
     price_range: {
-      type: [String],
-      required: true,
+      min: { type: Number, required: true },
+      max: { type: Number, required: true },
     },
     pincode: {
       type: [String],
@@ -68,6 +68,7 @@ const Proposal = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     agents: {
       type: [agentsSchema],
       default: [],
