@@ -23,11 +23,9 @@ const verifyUserJwt = async (req, res, next) => {
 
     // Fetch user from DB & ensure action = '0'
     const userDetails = await usersModel.findOne({
-      _id: decoded.userId,
+      _id: decoded.id,
       action: "0",
     });
-
-    console.log(userDetails);
 
     if (!userDetails) {
       return res

@@ -1,4 +1,5 @@
 const Message = require("../model/Message");
+const { UserProposalModel } = require("../model/users/UsersProposal");
 
 const initializeSocket = (server) => {
     const socket = require("socket.io");
@@ -54,6 +55,44 @@ const initializeSocket = (server) => {
             }
         });
 
+        socket.on("proposal-message", async ({ proposalId, userId, targetId, message }) => {
+            try {
+                const roomId = [userId, targetId].sort().join("_");
+        
+                // Create a new message object
+                const newMessage = {
+                    participate: [userId, targetId],
+                    sender: userId,
+                    message: message,
+                    timestamp: new Date(),
+                    seen: false
+                };
+        
+                // Find the proposal and update its chats array
+                const proposal = await UserProposalModel.findByIdAndUpdate(
+                    proposalId,
+                    { $push: { chats: newMessage } }, // Push new message to the chats array
+                    { new: true, useFindAndModify: false }
+                );
+        
+                if (!proposal) {
+                    return socket.emit("error", "Proposal not found");
+                }
+        
+                // Emit the message to the room
+                io.to(roomId).emit("messageReceived", {
+                    sender: userId,
+                    message: message,
+                    timestamp: newMessage.timestamp,
+                });
+        
+                console.log(`📩 Message stored in proposal ${proposalId} and sent to room ${roomId}`);
+            } catch (error) {
+                console.error("❌ Error sending message:", error);
+            }
+        });
+        
+        
         socket.on("disconnect", () => {
             console.log("🔴 Client disconnected:", socket.id);
         });

@@ -13,7 +13,8 @@ const addProposal = async (req, res) => {
             pincode,
             property_buying_plain,
             purpose_purchase,
-            communicate_preferred
+            communicate_preferred,
+            address
         } = req.body;
 
         // Validate required fields
@@ -31,6 +32,7 @@ const addProposal = async (req, res) => {
             purpose_purchase,
             communicate_preferred,
             userId,
+            address
         });
 
         // Save to database
@@ -168,6 +170,35 @@ const proposalRequestGiveToAgent = async (req, res) => {
 };
 
 
+const getUserProposals = async (req,res) => {
+
+    const userId=req.user._id.toString();
+
+  
+    try {
+        const proposals = await UserProposalModel.find({ userId })
+           
+
+        if(!proposals){
+
+            res.json({
+                status:"false",
+                message:"no data found"
+            })
+        }
+
+        res.json({
+            status:"false",
+            data:proposals
+        })
+       
+        return proposals;
+    } catch (error) {
+        console.error("Error fetching user proposals:", error);
+        return null;
+    }
+};
 
 
-module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent };
+
+module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent,getUserProposals };
