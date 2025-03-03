@@ -2,7 +2,7 @@ const express = require("express");
 const { addUser,loginUser, loginWithGoogle,updateUserProfile,upload,verifyOtp } = require("../../controller/userController");
 const verifyUserJwt = require("../../middleware/verifyUserJwt");
 const multer = require("multer");
-const { addProposal, getAgentsByProposal, proposalRequestGiveToAgent ,getUserProposals} = require("../../controller/ProposalController");
+const { addProposal, getAgentsByProposal, proposalRequestGiveToAgent ,getUserProposals, viewAgentDetails} = require("../../controller/ProposalController");
 
 const userRouter = express.Router();
 userRouter.post("/add", addUser);
@@ -15,4 +15,6 @@ userRouter.post("/find-agent",verifyUserJwt,getAgentsByProposal)
 userRouter.post("/give-request-to-agent",verifyUserJwt,proposalRequestGiveToAgent)
 
 userRouter.post("/get-proposals",verifyUserJwt,getUserProposals)
+
+userRouter.post("/view-agent/:agentId",verifyUserJwt,viewAgentDetails)
 module.exports = userRouter;

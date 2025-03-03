@@ -212,5 +212,42 @@ const getUserProposals = async (req,res) => {
 };
 
 
+const mongoose = require("mongoose"); // Ensure you import mongoose
 
-module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent,getUserProposals };
+const viewAgentDetails = async (req, res) => {
+    try {
+        const { agentId } = req.params;
+
+        // Check if agentId is a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(agentId)) {
+            return res.status(400).json({
+                status: "false",
+                message: "Invalid Agent ID format",
+            });
+        }
+
+        const agentDetails = await AgentModel.findOne({ _id: agentId });
+
+        if (!agentDetails) {
+            return res.json({
+                status: "false",
+                message: "No data found",
+            });
+        }
+
+        res.json({
+            status: "true",
+            data: agentDetails,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: "false",
+            message: "Server error",
+            error: error.message,
+        });
+    }
+};
+
+
+module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent,getUserProposals,viewAgentDetails };
