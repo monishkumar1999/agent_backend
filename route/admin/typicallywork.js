@@ -4,7 +4,7 @@ const Role = require('../../model/role');
 const cors = require('cors');
 const Typeciallywork = require('../../model/typicallyWorkModel');
 
-const typicallyRoute = express.Router();
+const typicallyRoute = express.Router();        
 
 const corsOptions = {
     origin: 'http://localhost:3000',

@@ -36,7 +36,7 @@ const otherDetailsSchema = new mongoose.Schema({
     },
     chargeType: {
         type: String,
-        enum: ['percentage', 'flat'],
+        enum: ['Percentage', 'flat'],
         required: true
     },
   fee:{
