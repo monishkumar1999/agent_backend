@@ -1,4 +1,5 @@
 const AgentModel = require("../model/agent/agentModel");
+const ProposalRequestModel = require("../model/requestAgent");
 const { UserProposalModel } = require("../model/users/UsersProposal");
 
 const addProposal = async (req, res) => {
@@ -250,4 +251,41 @@ const viewAgentDetails = async (req, res) => {
 };
 
 
-module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent,getUserProposals,viewAgentDetails };
+const createRequest=async (req, res) => {
+    try {
+        const { proposalId, agentId } = req.body;
+
+        const userId=req.user._id.toString();
+
+    
+        // Validate required fields
+        if (!proposalId || !userId || !agentId) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
+
+        // Create a new proposal request
+        const newProposalRequest = new ProposalRequestModel({
+            proposalId,
+            userId,
+            agentId,
+          
+        });
+
+        // Save to database
+        await newProposalRequest.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Proposal request created successfully",
+            proposalRequest: newProposalRequest
+        });
+
+    } catch (error) {
+        console.error("Error creating proposal request:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+
+
+module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent,getUserProposals,viewAgentDetails,createRequest };

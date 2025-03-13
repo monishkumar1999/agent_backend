@@ -7,6 +7,7 @@ const { generateOtp, transporter } = require("../utils/email/email");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const ProposalRequestModel = require("../model/requestAgent");
 
 
 
@@ -320,6 +321,68 @@ const viewAgentDetails = async (req, res) => {
     })
 }
 
+const viewRequest = async (req, res) => {
+    try {
+        const agentId = req.agent.userId;
 
 
-module.exports = { addAgent, loginAgent, loginwithGoogle, updateAgentDetails, verifyOtp, viewAgentDetails };
+        // Fetch requests where agentId matches
+        const requests = await ProposalRequestModel.find({ agentId })
+            .populate("proposalId userId agentId") // Populate related data
+            .sort({ createdAt: -1 }); // Sort by latest first
+
+        if (!requests.length) {
+            return res.status(404).json({ success: false, message: "No requests found for this agent" });
+        }
+
+        res.json({ success: true, data: requests });
+
+    } catch (error) {
+        console.error("Error fetching requests by agentId:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+const update_request = async (req, res) => {
+    try {
+        console.log(req.body);
+
+        const { accept_status, requestId, remark } = req.body;
+
+        // Validate the status input
+        if (!["pending", "accepted", "rejected"].includes(accept_status)) {
+            return res.status(400).json({ success: false, message: "Invalid status value" });
+        }
+
+        // If rejecting, remark is required
+        if (accept_status === "rejected" && (!remark || remark.trim() === "")) {
+            return res.status(400).json({ success: false, message: "Remark is required when rejecting a request" });
+        }
+
+        // Prepare update object
+        const updateData = { accept_status, updatedAt: Date.now() };
+        if (accept_status === "rejected") {
+            updateData.remark = remark;
+        }
+
+        // Find and update the proposal request
+        const updatedRequest = await ProposalRequestModel.findByIdAndUpdate(
+            requestId,
+            updateData,
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedRequest) {
+            return res.status(404).json({ success: false, message: "Proposal request not found" });
+        }
+
+        res.json({ success: true, message: "Status updated successfully", data: updatedRequest });
+
+    } catch (error) {
+        console.error("Error updating status:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+
+module.exports = { addAgent, loginAgent, loginwithGoogle, updateAgentDetails, verifyOtp, viewAgentDetails ,viewRequest,update_request};
