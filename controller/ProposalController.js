@@ -288,4 +288,27 @@ const createRequest=async (req, res) => {
 
 
 
-module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent,getUserProposals,viewAgentDetails,createRequest };
+
+const getRequests = async (req, res) => {
+    try {
+        const userId = req.user._id.toString();
+
+
+        // Fetch requests where agentId matches
+        const requests = await ProposalRequestModel.find({ userId })
+            .populate("proposalId userId agentId") // Populate related data
+            .sort({ createdAt: -1 }); // Sort by latest first
+
+        if (!requests.length) {
+            return res.status(404).json({ success: false, message: "No requests found for this agent" });
+        }
+
+        res.json({ success: true, data: requests });
+
+    } catch (error) {
+        console.error("Error fetching requests by agentId:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent,getUserProposals,viewAgentDetails,createRequest,getRequests };
