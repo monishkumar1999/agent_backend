@@ -1,5 +1,5 @@
  const express=require('express');
-const { addAgent, loginAgent,loginwithGoogle,updateAgentDetails, verifyOtp, viewAgentDetails, viewRequest, update_request } = require('../../controller/AgentController');
+const { addAgent, loginAgent,loginwithGoogle,updateAgentDetails, verifyOtp, viewAgentDetails, viewRequest, update_request, viewProposalRequest } = require('../../controller/AgentController');
 const verifyAgentJwt = require('../../utils/agent/verifyAgent');
 
 const agentRouter = express.Router();
@@ -15,5 +15,9 @@ agentRouter.get("/get-agent-details",verifyAgentJwt,viewAgentDetails)
 agentRouter.get("/view/request",verifyAgentJwt,viewRequest)
 
 agentRouter.post("/update/request",verifyAgentJwt,update_request)
+
+
+agentRouter.post("/proposal/view",verifyAgentJwt,viewProposalRequest)
+
 
 module.exports=agentRouter;

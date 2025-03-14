@@ -345,7 +345,7 @@ const viewRequest = async (req, res) => {
 
 const update_request = async (req, res) => {
     try {
-        console.log(req.body);
+        
 
         const { accept_status, requestId, remark } = req.body;
 
@@ -385,4 +385,26 @@ const update_request = async (req, res) => {
 };
 
 
-module.exports = { addAgent, loginAgent, loginwithGoogle, updateAgentDetails, verifyOtp, viewAgentDetails ,viewRequest,update_request};
+const viewProposalRequest = async (req, res) => {
+    try {
+        const { proposalId } = req.body;
+
+
+        // Fetch requests where agentId matches
+        const requests = await ProposalRequestModel.find({ proposalId })
+            .populate("proposalId userId agentId") // Populate related data
+            .sort({ createdAt: -1 }); // Sort by latest first
+
+        if (!requests.length) {
+            return res.status(404).json({ success: false, message: "No requests found for this agent" });
+        }
+
+        res.json({ success: true, data: requests });
+
+    } catch (error) {
+        console.error("Error fetching requests by agentId:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+module.exports = { addAgent, loginAgent, loginwithGoogle, updateAgentDetails, verifyOtp, viewAgentDetails ,viewRequest,update_request,viewProposalRequest};
