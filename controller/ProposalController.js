@@ -81,20 +81,38 @@ const getAgentsByProposal = async (req, res) => {
         // Convert pincode to numbers
         const pincodeNumbers = pincode.map(pc => parseInt(pc, 10)).filter(pc => !isNaN(pc));
 
-
         // Find matching agents
         const matchingAgents = await AgentModel.find({
             "agentDetails.postCode_cover": { $in: pincodeNumbers }, 
-            // "agentDetails.fees_structure.min": { $lte: price_range.min },
-            // "agentDetails.fees_structure.max": { $gte: price_range.max },
             action: "0", 
             isSubscription: "1"
         });
 
+        // Get the list of agent IDs
+        const agentIds = matchingAgents.map(agent => agent._id);
+
+        // Find existing ProposalRequests for these agents and proposalId
+        const proposalRequests = await ProposalRequestModel.find({
+            proposalId: proposalId,
+            agentId: { $in: agentIds }
+        });
+
+        // Create a mapping of agentId to accept_status
+        const agentStatusMap = {};
+        proposalRequests.forEach(request => {
+            agentStatusMap[request.agentId.toString()] = request.accept_status;
+        });
+
+        // Append accept_status to each agent
+        const agentsWithStatus = matchingAgents.map(agent => ({
+            ...agent.toObject(),
+            accept_status: agentStatusMap[agent._id.toString()] || "pending" // Default to "pending" if no request exists
+        }));
+
         return res.status(200).json({
             success: true,
             message: "Matching agents found",
-            agents: matchingAgents
+            agents: agentsWithStatus
         });
 
     } catch (error) {
@@ -102,6 +120,7 @@ const getAgentsByProposal = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     }
 };
+
 
 
 const proposalRequestGiveToAgent = async (req, res) => {
