@@ -37,11 +37,10 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 const corsOptions = {
- origin: "*",
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Encrypted-Data"],
-    credentials: true,
-    exposedHeaders: ["Cross-Origin-Opener-Policy"], // Expose COOP
+    exposedHeaders: ["Cross-Origin-Opener-Policy"],
 };
 
 app.use(cors(corsOptions));
