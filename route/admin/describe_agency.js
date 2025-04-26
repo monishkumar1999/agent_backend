@@ -1,6 +1,6 @@
 const express = require('express');
-const checkJwt = require('../middleware/checkToken');  // Token validation middleware
-const DescribesAgency = require('../model/describes_agency');
+const checkJwt = require('../../middleware/checkToken');  // Token validation middleware
+const DescribesAgency = require('../../model/describes_agency');
 const cors = require('cors');
 
 const describeRouter = express.Router();
@@ -48,7 +48,7 @@ describeRouter.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Describes Agencies
-describeRouter.get("/view", checkJwt, async (req, res) => {
+describeRouter.get("/view",async (req, res) => {
     try {
         const agencies = await DescribesAgency.find({ action: "0" });  // Fetch agencies with action '0' (active)
         res.status(200).json({ status: "true", data: agencies });

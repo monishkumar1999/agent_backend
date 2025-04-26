@@ -1,6 +1,6 @@
 const express = require('express');
-const checkJwt = require('../middleware/checkToken');
-const Describe = require('../model/describe');
+const checkJwt = require('../../middleware/checkToken');
+const Describe = require('../../model/describe');
 const cors = require('cors');
 
 const masterRouter = express.Router();
@@ -48,7 +48,7 @@ masterRouter.use("/add", checkJwt, async (req, res) => {
 
 // View API
 // GET request to fetch all Describes
-masterRouter.get("/view", checkJwt, async (req, res) => {
+masterRouter.get("/view", async (req, res) => {
 
     try {
         const describes = await Describe.find({ action: "0" });

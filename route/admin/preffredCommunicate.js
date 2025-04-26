@@ -1,10 +1,11 @@
 const express = require('express');
-const checkJwt = require('../middleware/checkToken');  // Token validation middleware
-
+const checkJwt = require('../../middleware/checkToken');  // Token validation middleware
+const Role = require('../../model/role');
 const cors = require('cors');
-const Full_range_service = require('../model/full_range_sevice_provider');
+const preffredCommunicate = require('../../model/commuicate_prefeffedModel');
 
-const serviceProvide = express.Router();
+
+const prefferedCommunicateRoute = express.Router();
 
 const corsOptions = {
     origin: 'http://localhost:3000',
@@ -13,25 +14,27 @@ const corsOptions = {
     credentials: true,
 };
 
-serviceProvide.use(cors(corsOptions));
-serviceProvide.options('*', cors(corsOptions));
+prefferedCommunicateRoute.use(cors(corsOptions));
+prefferedCommunicateRoute.options('*', cors(corsOptions));
 
 // API to add a new Role
-serviceProvide.use("/add", checkJwt, async (req, res) => {
+prefferedCommunicateRoute.use("/add", checkJwt, async (req, res) => {
     const { name } = req.body;
+
     try {
         if (!name) {
             throw new Error("Role name is required");
         }
 
         // Check if role with the same name exists
-        const existingRole = await Full_range_service.findOne({ name, action: '0' });
+        const existingRole = await preffredCommunicate.findOne({ name, action: '0' });
+
 
         if (existingRole) {
             throw new Error("Role with this name already exists");
         }
 
-        const roleInstance = new Full_range_service({ name });
+        const roleInstance = new preffredCommunicate({ name });
         const savedRole = await roleInstance.save();
 
         if (savedRole) {
@@ -49,10 +52,10 @@ serviceProvide.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-serviceProvide.get("/view", checkJwt, async (req, res) => {
-  
+prefferedCommunicateRoute.get("/view", async (req, res) => {
+
     try {
-        const roles = await Full_range_service.find({ action: "0" });  // Fetch roles with action '0' (active)
+        const roles = await preffredCommunicate.find({ action: "0" });  // Fetch roles with action '0' (active)
         res.status(200).json({ status: "true", data: roles });
     } catch (err) {
         return res.status(500).json({ status: "false", message: err.message });
@@ -60,12 +63,12 @@ serviceProvide.get("/view", checkJwt, async (req, res) => {
 });
 
 // Edit an existing Role
-serviceProvide.put("/edit", checkJwt, async (req, res) => {
+prefferedCommunicateRoute.put("/edit", checkJwt, async (req, res) => {
     const { name, newName } = req.body;
 
     try {
         // Check if the new role name already exists
-        const existingRole = await Full_range_service.findOne({ name: newName, action: "0" });
+        const existingRole = await preffredCommunicate.findOne({ name: newName, action: "0" });
 
         if (existingRole) {
             return res.status(400).json({
@@ -75,7 +78,7 @@ serviceProvide.put("/edit", checkJwt, async (req, res) => {
         }
 
         // Proceed with updating the role name
-        const roleInstance = await Full_range_service.findOne({ name });
+        const roleInstance = await preffredCommunicate.findOne({ name });
 
         if (!roleInstance) {
             return res.status(404).json({
@@ -100,15 +103,15 @@ serviceProvide.put("/edit", checkJwt, async (req, res) => {
 });
 
 // Delete a Role (by setting action to '1' instead of deletion)
-serviceProvide.delete("/delete", checkJwt, async (req, res) => {
+prefferedCommunicateRoute.delete("/delete", checkJwt, async (req, res) => {
     const { _id } = req.body;
 
     try {
         if (!_id) {
-            throw new Error("Serivce ID is required");
+            throw new Error("Role ID is required");
         }
 
-        const roleInstance = await Full_range_service.findOne({ _id });
+        const roleInstance = await preffredCommunicate.findOne({ _id });
 
         if (!roleInstance) {
             return res.status(404).json({
@@ -132,4 +135,4 @@ serviceProvide.delete("/delete", checkJwt, async (req, res) => {
     }
 });
 
-module.exports = serviceProvide;
+module.exports = prefferedCommunicateRoute;

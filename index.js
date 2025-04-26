@@ -5,36 +5,61 @@ const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const adminRoutes = require('./route/adminRoutes');  // Import the admin routes
+const adminRoutes = require('./route/admin/adminRoutes');  // Import the admin routes
 const cookieParser = require('cookie-parser');
-const masterRouter = require('./route/masters');
-const roleMaster = require('./route/role');
-const describeRouter = require('./route/describe_agency');
-const serviceProvide = require('./route/service_provide');
-const durationRoute = require('./route/duration_buyerAgreement');
-const saleMethod = require('./route/sale_method');
-const specializeRoute = require('./route/specialization');
-const typicallyRoute = require('./route/typicallywork');
-const videoCalltechRoute = require('./route/videoCallTech');
-const digitalRoute = require('./route/digitalSolution');
-const propertyRoute = require('./route/property');
-const purchasePurpose = require('./route/purchasePurpose');
-const prefferedCommunicateRoute = require('./route/preffredCommunicate');
+const masterRouter = require('./route/admin/masters');
+const roleMaster = require('./route/admin/role');
+const describeRouter = require('./route/admin/describe_agency');
+const serviceProvide = require('./route/admin/service_provide');
+const durationRoute = require('./route/admin/duration_buyerAgreement');
+const saleMethod = require('./route/admin/sale_method');
+const specializeRoute = require('./route/admin/specialization');
+const typicallyRoute = require('./route/admin/typicallywork');
+const videoCalltechRoute = require('./route/admin/videoCallTech');
+const digitalRoute = require('./route/admin/digitalSolution');
+const propertyRoute = require('./route/admin/property');
+const purchasePurpose = require('./route/admin/purchasePurpose');
+const prefferedCommunicateRoute = require('./route/admin/preffredCommunicate');
 
+require("dotenv").config();
 const initializeSocket = require('./utils/socket');
 
 
 const http = require('http');
+const agentRouter = require('./route/agent/agentRoute');
+const userRouter = require('./route/users/userRoute');
+const path = require('path');
+const { chatRouter } = require('./route/chatRouter');
 
 const app = express();
+
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+
+const corsOptions = {
+    origin:[ "http://localhost:3000",'http://192.168.29.5:3000'],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Encrypted-Data"],
+    credentials: true,
+    exposedHeaders: ["Cross-Origin-Opener-Policy"], // Expose COOP
+};
+
+app.use(cors(corsOptions));
+
+
+
+
+
+
 const server = http.createServer(app);
 
 initializeSocket(server);
 
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(express.json());
+app.use(cookieParser()); // ✅ Enables reading cookies
 
-
-app.use(cookieParser());
 // const corsOptions = {
 //     origin: '*', // Allow requests from any origin
 //     methods: ['GET', 'POST', 'PUT', 'DELETE'], // HTTP methods you want to allow
@@ -51,10 +76,7 @@ app.use(cookieParser());
 
 
 
-// Middleware for parsing JSON requests
-app.use(bodyParser.json());
 
-const JWT_SECRET = 'your_jwt_secret_key';
 
 // MongoDB connection string
 // const mongoURI = 'mongodb://buyeragentadmin:BuyerAgent2024@3.6.212.38:27017/buyeragentdb?authSource=admin';
@@ -142,17 +164,6 @@ const UserRequest = mongoose.model('UserRequest', userRequestSchema);
 // Create the OTP verification model
 const OtpVerification = mongoose.model('OtpVerification', otpVerificationSchema);
 
-// Encrypt the password before saving the user
-buyerAgentSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-        return next();
-    }
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-});
-
-// Create the BuyerAgent model
 const BuyerAgent = mongoose.model('BuyerAgent', buyerAgentSchema);
 
 // Middleware to authenticate token
@@ -190,6 +201,15 @@ app.use('/property', propertyRoute)
 app.use('/purchase', purchasePurpose)
 app.use('/communicate', prefferedCommunicateRoute)
 
+// agent
+
+app.use("/agent",agentRouter);
+app.use("/user",userRouter)
+
+
+// chat 
+
+app.use("/chat",chatRouter)
 const authenticateToken = (req, res, next) => {
     const token = req.body.token;
 
@@ -206,18 +226,7 @@ const authenticateToken = (req, res, next) => {
     }
 };
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'digitowls10@gmail.com', // Replace with your email
-        pass: 'cdny qlnm fjiv ygif'   // Replace with your email password or app password
-    }
-});
 
-// Helper function to generate OTP
-const generateOtp = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString(); // Generate a random 6-digit OTP
-};
 
 app.get('/test', (req, res) => {
     res.status(500).json({

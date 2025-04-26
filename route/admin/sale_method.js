@@ -1,11 +1,10 @@
 const express = require('express');
-const checkJwt = require('../middleware/checkToken');  // Token validation middleware
-const Role = require('../model/role');
+const checkJwt = require('../../middleware/checkToken');  // Token validation middleware
 const cors = require('cors');
-const preffredCommunicate = require('../model/commuicate_prefeffedModel');
+const Sale_method = require('../../model/sale_method copy');
 
 
-const prefferedCommunicateRoute = express.Router();
+const saleMethod = express.Router();
 
 const corsOptions = {
     origin: 'http://localhost:3000',
@@ -14,27 +13,25 @@ const corsOptions = {
     credentials: true,
 };
 
-prefferedCommunicateRoute.use(cors(corsOptions));
-prefferedCommunicateRoute.options('*', cors(corsOptions));
+saleMethod.use(cors(corsOptions));
+saleMethod.options('*', cors(corsOptions));
 
 // API to add a new Role
-prefferedCommunicateRoute.use("/add", checkJwt, async (req, res) => {
+saleMethod.use("/add", checkJwt, async (req, res) => {
     const { name } = req.body;
-
     try {
         if (!name) {
             throw new Error("Role name is required");
         }
 
         // Check if role with the same name exists
-        const existingRole = await preffredCommunicate.findOne({ name, action: '0' });
-
+        const existingRole = await Sale_method.findOne({ name, action: '0' });
 
         if (existingRole) {
             throw new Error("Role with this name already exists");
         }
 
-        const roleInstance = new preffredCommunicate({ name });
+        const roleInstance = new Sale_method({ name });
         const savedRole = await roleInstance.save();
 
         if (savedRole) {
@@ -52,10 +49,10 @@ prefferedCommunicateRoute.use("/add", checkJwt, async (req, res) => {
 });
 
 // View all Roles
-prefferedCommunicateRoute.get("/view", checkJwt, async (req, res) => {
-
+saleMethod.get("/view", async (req, res) => {
+  
     try {
-        const roles = await preffredCommunicate.find({ action: "0" });  // Fetch roles with action '0' (active)
+        const roles = await Sale_method.find({ action: "0" });  // Fetch roles with action '0' (active)
         res.status(200).json({ status: "true", data: roles });
     } catch (err) {
         return res.status(500).json({ status: "false", message: err.message });
@@ -63,12 +60,12 @@ prefferedCommunicateRoute.get("/view", checkJwt, async (req, res) => {
 });
 
 // Edit an existing Role
-prefferedCommunicateRoute.put("/edit", checkJwt, async (req, res) => {
+saleMethod.put("/edit", checkJwt, async (req, res) => {
     const { name, newName } = req.body;
 
     try {
         // Check if the new role name already exists
-        const existingRole = await preffredCommunicate.findOne({ name: newName, action: "0" });
+        const existingRole = await Sale_method.findOne({ name: newName, action: "0" });
 
         if (existingRole) {
             return res.status(400).json({
@@ -78,7 +75,7 @@ prefferedCommunicateRoute.put("/edit", checkJwt, async (req, res) => {
         }
 
         // Proceed with updating the role name
-        const roleInstance = await preffredCommunicate.findOne({ name });
+        const roleInstance = await Sale_method.findOne({ name });
 
         if (!roleInstance) {
             return res.status(404).json({
@@ -103,15 +100,15 @@ prefferedCommunicateRoute.put("/edit", checkJwt, async (req, res) => {
 });
 
 // Delete a Role (by setting action to '1' instead of deletion)
-prefferedCommunicateRoute.delete("/delete", checkJwt, async (req, res) => {
+saleMethod.delete("/delete", checkJwt, async (req, res) => {
     const { _id } = req.body;
 
     try {
         if (!_id) {
-            throw new Error("Role ID is required");
+            throw new Error("Serivce ID is required");
         }
 
-        const roleInstance = await preffredCommunicate.findOne({ _id });
+        const roleInstance = await Sale_method.findOne({ _id });
 
         if (!roleInstance) {
             return res.status(404).json({
@@ -135,4 +132,4 @@ prefferedCommunicateRoute.delete("/delete", checkJwt, async (req, res) => {
     }
 });
 
-module.exports = prefferedCommunicateRoute;
+module.exports = saleMethod;
