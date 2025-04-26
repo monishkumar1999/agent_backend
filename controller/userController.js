@@ -148,38 +148,45 @@ const upload = multer({ storage });
 
 const sendOtp = async (req, res) => {
     const { email } = req.body;
-
+  
     if (!email) {
-        return res.status(400).json({ message: "Email is required" });
+      return res.status(400).json({ message: "Email is required" });
     }
-
+  
     try {
-        const otpCode = generateOtp();
-        const otpExpires = Date.now() + 20 * 60 * 1000; // 20 minutes validity
-
-      
-      const agent=  await usersModel.updateOne({ email:email }, { otp: otpCode, otpExpires });
-
-        // Send OTP via email
-        await transporter.sendMail({
-            from: "digitowls10@gmail.com",
-            to: email,
-            subject: "Your Verification Code",
-            text: `Your OTP is: ${otpCode}`,
-        });
-
-        return res.status(200).json({ message: "OTP sent successfully", email });
-
+      const user = await usersModel.findOne({ email });
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      const otpCode = generateOtp();
+      const otpExpires = Date.now() + 20 * 60 * 1000; // 20 mins
+  
+      user.otp = otpCode;
+      user.otpExpires = otpExpires;
+  
+      await user.save();
+  
+      await transporter.sendMail({
+        from: "digitowls10@gmail.com",
+        to: email,
+        subject: "Your Verification Code",
+        text: `Your OTP is: ${otpCode}`,
+      });
+  
+      return res.status(200).json({ message: "OTP sent successfully", email });
+  
     } catch (error) {
-        console.error("OTP Error:", error);
-        return res.status(500).json({ message: "Failed to send OTP" });
+      console.error("OTP Error:", error);
+      return res.status(500).json({ message: "Failed to send OTP", error: error.message });
     }
-};
+  };
+  
+
 
 
 const verifyOtp = async (req, res) => {
-
-    console.log(req.body)
     const { email, otp } = req.body;
 
     if (!email || !otp) {
@@ -189,23 +196,28 @@ const verifyOtp = async (req, res) => {
     try {
         const user = await usersModel.findOne({ email });
 
-        if (!user || user.otp != otp || Date.now() > user.otpExpires) {
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.otp !== otp || Date.now() > user.otpExpires) {
             return res.status(400).json({ message: "Invalid or expired OTP" });
         }
 
-       
-        user.otp = null; // Clear OTP
+        user.otp = null;
         user.otpExpires = null;
         await user.save();
 
-        // Generate JWT token
-        const token = jwt.sign({ userId: user._id, email: user.email, role: "user" }, jwt_secret_key, {
-            expiresIn: "5d",
+        const token = jwt.sign(
+            { userId: user._id, email: user.email, role: "user" },
+            jwt_secret_key,
+            { expiresIn: "5d" }
+        );
+
+        res.cookie("authToken", token, {
+           
+            maxAge: 3600000 // 1 hour
         });
-
-        console.log(token)
-        res.cookie("authTtoken", token, { maxAge: 3600000 });
-
 
         return res.status(200).json({ message: "OTP verified. Account activated.", token });
 
@@ -213,6 +225,7 @@ const verifyOtp = async (req, res) => {
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
 
 
 module.exports = { addUser ,loginUser,loginWithGoogle,updateUserProfile,upload,verifyOtp};

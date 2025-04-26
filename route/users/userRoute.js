@@ -16,7 +16,7 @@ userRouter.post("/give-request-to-agent",verifyUserJwt,proposalRequestGiveToAgen
 
 userRouter.post("/get-proposals",verifyUserJwt,getUserProposals)
 
-userRouter.post("/view-agent/:agentId",verifyUserJwt,viewAgentDetails);
+userRouter.get("/view-agent/:agentId",verifyUserJwt,viewAgentDetails);
 
 userRouter.post("/proposal-requests",verifyUserJwt,createRequest);
 

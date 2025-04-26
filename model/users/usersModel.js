@@ -27,13 +27,15 @@ const usersSchema = new mongoose.Schema(
       default: "0", // ✅ Corrected action default value
     },
     profileImage: { type: String }, 
-    otp:{
-        type:String,
-    
+    otp: {
+      type: String,
+      default: null,
     },
-    otpExpires:{
-type:Date
+    otpExpires: {
+      type: Date,
+      default: null,
     }
+    
   },
   { timestamps: true }
 );

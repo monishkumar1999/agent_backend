@@ -24,7 +24,7 @@ const Proposal = new mongoose.Schema({
     },
     noOfBedRooms: {
         type: Number,
-        required: true
+     
     },
     price_range: {
         min: { type: Number, required: true },

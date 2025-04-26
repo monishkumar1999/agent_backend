@@ -9,6 +9,7 @@ const addProposal = async (req, res) => {
             return res.status(401).json({ success: false, message: "Unauthorized access" });
         }
 
+        console.log(req.body)
         const {
             propertyType,
             noOfBedRooms,
@@ -22,7 +23,7 @@ const addProposal = async (req, res) => {
 
         // Validate required fields
         if (!propertyType) return res.status(400).json({ success: false, message: "Property type is required." });
-        if (!noOfBedRooms) return res.status(400).json({ success: false, message: "Number of bedrooms is required." });
+       
         if (!price_range || price_range.min === undefined || price_range.max === undefined) {
             return res.status(400).json({ success: false, message: "Price range (min & max) is required." });
         }
@@ -37,7 +38,7 @@ const addProposal = async (req, res) => {
         // Create a new proposal document
         const newProposal = new UserProposalModel({
             propertyType,
-            noOfBedRooms,
+         
             price_range,
             pincode,
             property_buying_plain,
@@ -83,9 +84,9 @@ const getAgentsByProposal = async (req, res) => {
 
         // Find matching agents
         const matchingAgents = await AgentModel.find({
-            "agentDetails.postCode_cover": { $in: pincodeNumbers }, 
+            // "agentDetails.postCode_cover": { $in: pincodeNumbers }, 
             action: "0", 
-            isSubscription: "1"
+            // isSubscription: "1"
         });
 
         // Get the list of agent IDs

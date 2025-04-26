@@ -14,7 +14,7 @@ const otherDetailsSchema = new mongoose.Schema({
     services_provided: { type: String, required: true },
     method_of_sale: { type: String, required: true },
     buyer_agency_agreement: { type: String, required: true },
-    sales_team_count: { type: Number, required: true },
+    sales_team_count: { type: Number, required: false },
     postCode_cover: {
         type: [Number],
         required: true,
@@ -26,8 +26,8 @@ const otherDetailsSchema = new mongoose.Schema({
         }
     },
     specialization: { type: String, required: true },
-    agent_work_type: { type: String, required: true },
-    videoCall_offer: { type: String, enum: ['Yes', 'No'], required: true },
+    agent_work_type: { type: String, required: false },
+    videoCall_offer: { type: String, enum: ['Yes', 'No'], required: false },
     videoCallTech: { type: String },
     digital_solution: { type: String, required: true },
     fees_structure: {
@@ -89,12 +89,7 @@ const AgentSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-AgentSchema.pre('save', function (next) {
-    if (this.agentDetails.videoCall_offer === 'No') {
-        this.agentDetails.videoCallTech = undefined;
-    }
-    next();
-});
+
 
 // Create Model
 const AgentModel = mongoose.model('agents', AgentSchema);

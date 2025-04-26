@@ -38,6 +38,7 @@ const upload = multer({
 const addAgent = async (req, res) => {
     try {
         const { firstName, lastName, email, phone, password } = req.body;
+
         const existingAgent = await AgentModel.findOne({
             $or: [{ email }, { phone }],
             action: "0",
@@ -57,9 +58,18 @@ const addAgent = async (req, res) => {
             password: hashedPassword,
             action: "0",
         });
-        await sendOtp(req, res);
+
         await newAgent.save();
 
+        const otpResult = await sendOtp(email);
+        if (!otpResult.success) {
+            return res.status(500).json({ message: otpResult.message });
+        }
+
+        return res.status(201).json({
+            message: "Agent created and OTP sent successfully",
+            email: otpResult.email
+        });
 
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message });
@@ -68,78 +78,78 @@ const addAgent = async (req, res) => {
 
 
 const loginAgent = async (req, res) => {
-
-
     try {
-        const { email, phone, password } = req.body;
-
-        console.log("Login Attempt:", { email, phone });
-
-        const agent = await AgentModel.findOne({
-            $or: [{ email }, { phone }],
-            action: "0",
-        });
-
-
-        if (!agent) {
-            return res.status(400).json({ message: "Invalid email/phone or password" });
-        }
-
-        const isMatch = await bcrypt.compare(password, agent.password);
-
-
-        if (!isMatch) {
-            return res.status(400).json({ message: "Invalid email/phone or password" });
-        }
-
-        // Generate OTP
-        const otpCode = generateOtp();
-        const otpExpires = Date.now() + 20 * 60 * 1000; // 20 minutes expiration
-
-        // Update the agent with OTP
-        await AgentModel.findByIdAndUpdate(agent._id, { otpCode: otpCode, otpExpires });
-
-        await sendOtp(req, res);
-
-    } catch (error) {
-        console.error("Login Error:", error);
-        return res.status(500).json({ message: "Internal server error", error: error.message });
-    }
-};
-
-
-const sendOtp = async (req, res) => {
-    const { email } = req.body;
-
-    console.log(email)
-    if (!email) {
-        return res.status(400).json({ message: "Email is required" });
-    }
-
-    try {
-        const otpCode = generateOtp();
-        const otpExpires = Date.now() + 20 * 60 * 1000; // 20 minutes validity
-
-        // Store OTP in the database
-        await AgentModel.updateOne({ email }, { otpCode: otpCode, otpExpires });
-
-
-        // Send OTP via email
-        await transporter.sendMail({
-            from: "digitowls10@gmail.com",
-            to: email,
-            subject: "Your Verification Code",
-            text: `Your OTP is: ${otpCode}`,
-        });
-
-        return res.status(200).json({ message: "OTP sent successfully", email });
-
-    } catch (error) {
-        console.error("OTP Error:", error);
+      const { email, phone, password } = req.body;
+  
+      // Find agent by email or phone
+      const agent = await AgentModel.findOne({
+        $or: [{ email }, { phone }],
+        action: "0",
+      });
+  
+      if (!agent) {
+        return res.status(400).json({ message: "Invalid email/phone or password" });
+      }
+  
+      const isMatch = await bcrypt.compare(password, agent.password);
+  
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid email/phone or password" });
+      }
+  
+      // Generate OTP and update agent
+      const otpCode = generateOtp();
+      const otpExpires = Date.now() + 20 * 60 * 1000; // 20 minutes
+  
+      await AgentModel.findByIdAndUpdate(agent._id, {
+        otpCode,
+        otpExpires,
+      });
+  
+      // Send OTP to agent
+      const sendResult = await sendOtp(agent.email); // pass agent.email from DB
+  
+      if (!sendResult.success) {
         return res.status(500).json({ message: "Failed to send OTP" });
+      }
+  
+      // ✅ Send success response
+      return res.status(200).json({
+        message: "OTP sent successfully",
+        email: agent.email,
+      });
+  
+    } catch (error) {
+      console.error("Login Error:", error);
+      return res.status(500).json({ message: "Internal server error", error: error.message });
     }
-};
+  };
 
+  
+  const sendOtp = async (email) => {
+    try {
+      const agent = await AgentModel.findOne({ email });
+  
+      if (!agent || !agent.otpCode) {
+        return { success: false, message: "No OTP found for user" };
+      }
+  
+      await transporter.sendMail({
+        from: "digitowls10@gmail.com",
+        to: email,
+        subject: "Your Verification Code",
+        text: `Your OTP is: ${agent.otpCode}`,
+      });
+  
+      return { success: true, message: "OTP sent successfully", email };
+    } catch (error) {
+      console.error("Send OTP Error:", error);
+      return { success: false, message: "Failed to send OTP" };
+    }
+  };
+
+  
+  
 const loginwithGoogle = async (req, res) => {
 
 
@@ -345,7 +355,7 @@ const viewRequest = async (req, res) => {
 
 const update_request = async (req, res) => {
     try {
-        
+
 
         const { accept_status, requestId, remark } = req.body;
 
@@ -407,4 +417,4 @@ const viewProposalRequest = async (req, res) => {
     }
 }
 
-module.exports = { addAgent, loginAgent, loginwithGoogle, updateAgentDetails, verifyOtp, viewAgentDetails ,viewRequest,update_request,viewProposalRequest};
+module.exports = { addAgent, loginAgent, loginwithGoogle, updateAgentDetails, verifyOtp, viewAgentDetails, viewRequest, update_request, viewProposalRequest };
