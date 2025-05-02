@@ -49,6 +49,8 @@ const addAgent = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5-minute expiry
 
         const newAgent = new AgentModel({
             firstName,
@@ -57,6 +59,8 @@ const addAgent = async (req, res) => {
             phone,
             password: hashedPassword,
             action: "0",
+            otpCode,
+      otpExpires,
         });
 
         await newAgent.save();

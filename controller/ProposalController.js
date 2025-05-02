@@ -17,22 +17,20 @@ const addProposal = async (req, res) => {
             pincode,
             property_buying_plain,
             purpose_purchase,
-            communicate_preferred,
+            
             location
         } = req.body;
 
         // Validate required fields
         if (!propertyType) return res.status(400).json({ success: false, message: "Property type is required." });
        
-        if (!price_range || price_range.min === undefined || price_range.max === undefined) {
-            return res.status(400).json({ success: false, message: "Price range (min & max) is required." });
-        }
+       
         if (!pincode || !Array.isArray(pincode) || pincode.length === 0) {
             return res.status(400).json({ success: false, message: "At least one pincode is required as an array." });
         }
         if (!property_buying_plain) return res.status(400).json({ success: false, message: "Property buying plan is required." });
         if (!purpose_purchase) return res.status(400).json({ success: false, message: "Purpose of purchase is required." });
-        if (!communicate_preferred) return res.status(400).json({ success: false, message: "Preferred communication method is required." });
+       
         if (!location) return res.status(400).json({ success: false, message: "Location is required." });
 
         // Create a new proposal document
@@ -43,7 +41,6 @@ const addProposal = async (req, res) => {
             pincode,
             property_buying_plain,
             purpose_purchase,
-            communicate_preferred,
             userId,
             location
         });
@@ -74,14 +71,9 @@ const getAgentsByProposal = async (req, res) => {
             return res.status(404).json({ success: false, message: "Proposal not found" });
         }
 
-        const { pincode, price_range } = proposal;
-        if (!price_range || typeof price_range !== 'object' || isNaN(price_range.min) || isNaN(price_range.max)) {
-            return res.status(400).json({ success: false, message: "Invalid price range" });
-        }
+      
 
-        // Convert pincode to numbers
-        const pincodeNumbers = pincode.map(pc => parseInt(pc, 10)).filter(pc => !isNaN(pc));
-
+     
         // Find matching agents
         const matchingAgents = await AgentModel.find({
             // "agentDetails.postCode_cover": { $in: pincodeNumbers }, 
@@ -122,6 +114,31 @@ const getAgentsByProposal = async (req, res) => {
     }
 };
 
+
+const getAllAgents = async (req, res) => {
+    try {
+      // Fetch all active agents
+      const allAgents = await AgentModel.find({
+        action: "0", // Active agents
+        // isSubscription: "1" // Uncomment if subscription check is needed
+      });
+  
+      // Append accept_status as "pending" to each agent
+      const agentsWithStatus = allAgents.map(agent => ({
+        ...agent.toObject(),
+        accept_status: "pending" // Default status since no proposal is involved
+      }));
+  
+      return res.status(200).json({
+        success: true,
+        message: "All agents retrieved",
+        agents: agentsWithStatus
+      });
+    } catch (error) {
+      console.error("Error fetching agents:", error.message, error.stack);
+      return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+  };
 
 
 const proposalRequestGiveToAgent = async (req, res) => {
@@ -331,4 +348,4 @@ const getRequests = async (req, res) => {
     }
 }
 
-module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent,getUserProposals,viewAgentDetails,createRequest,getRequests };
+module.exports = { addProposal, getAgentsByProposal, proposalRequestGiveToAgent,getUserProposals,viewAgentDetails,createRequest,getRequests,getAllAgents };

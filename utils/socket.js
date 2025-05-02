@@ -7,7 +7,7 @@ const initializeSocket = (server) => {
     // Configure socket.io with CORS settings
     const io = socket(server, {
         cors: {
-            origin: ["http://localhost:3000", "http://192.168.29.5:3000"],
+            origin: ["http://localhost:3000", "http://13.203.235.203:3000"],
             methods: ["GET", "POST", "PUT", "DELETE"],
             credentials: true,
         },

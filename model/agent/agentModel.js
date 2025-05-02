@@ -76,7 +76,6 @@ const AgentSchema = new mongoose.Schema({
     averageRating: { type: Number, min: 0, max: 5, default: 0 },
     profile_img: {
         type: String,
-        default: "https://example.com/default-profile.png"
     },
     is_approval: {
         type: String,

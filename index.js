@@ -28,6 +28,7 @@ const initializeSocket = require('./utils/socket');
 const http = require('http');
 const agentRouter = require('./route/agent/agentRoute');
 const userRouter = require('./route/users/userRoute');
+const usersRouter = require('./route/user/usersRoute');
 const path = require('path');
 const { chatRouter } = require('./route/chatRouter');
 
@@ -206,6 +207,8 @@ app.use('/communicate', prefferedCommunicateRoute)
 app.use("/agent",agentRouter);
 app.use("/user",userRouter)
 
+
+app.use("/users",usersRouter)
 
 // chat 
 

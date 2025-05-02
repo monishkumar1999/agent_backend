@@ -26,10 +26,6 @@ const Proposal = new mongoose.Schema({
         type: Number,
      
     },
-    price_range: {
-        min: { type: Number, required: true },
-        max: { type: Number, required: true }
-    },
     pincode: {
         type: [String],
         required: true
@@ -46,7 +42,7 @@ const Proposal = new mongoose.Schema({
     communicate_preferred: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "communicatePreferred",
-        required: true
+        required: false
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,

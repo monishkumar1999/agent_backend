@@ -9,23 +9,10 @@ const { getAgent, approveAgent, agentDetails, user, userDetailsGet } = require('
 
 const router = express.Router();
 
-const corsOptions = {
-  origin:[ "http://localhost:3000",'http://192.168.1.6:3000'],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Encrypted-Data"],
-  credentials: true,
-  exposedHeaders: ["Cross-Origin-Opener-Policy"], // Expose COOP
-};
-
-
-
-  router.use(cors(corsOptions)); // Apply CORS middleware
-  
-  router.options('*', cors(corsOptions)); // Handle preflight requests
-
 
 // Login route with password hashing
 router.post('/login', async (req, res) => {
+
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ status: 'false', message: 'Username and password are required' });
@@ -58,7 +45,7 @@ router.post('/login', async (req, res) => {
 
 console.log(token)
 // Set JWT token in cookie (with security flags)
-res.cookie('auth_token', token, {
+res.cookie('authToken', token, {
   maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days expiration (in milliseconds)
   
 });

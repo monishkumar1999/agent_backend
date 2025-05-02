@@ -4,6 +4,7 @@ const { jwt_secret_key } = require('../utils/constant');
 const verifyAdminToken = (req, res, next) => {
   const token = req.cookies?.auth_token || req.cookies?.authToken;
 
+  console.log(req.cookies)
 
   if (!token) {
     return res.status(401).json({ status: 'false', message: 'Access denied. No token provided.' });
